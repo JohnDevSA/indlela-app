@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { IonApp } from '@ionic/vue'
 
+const config = useRuntimeConfig()
+
 // Simple online state (no API calls)
 const isOnline = ref(true)
+
+// Show dev tools only in development
+const isDev = process.dev
 
 // Check online status
 onMounted(() => {
@@ -23,6 +28,9 @@ onMounted(() => {
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
+
+    <!-- Dev Mode Switcher (only in development) -->
+    <DevDevSwitcher v-if="isDev" />
   </IonApp>
 </template>
 

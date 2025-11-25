@@ -1,0 +1,284 @@
+/* Indlela - Main Styles */
+
+/* CSS Variables - Brand Colors */
+:root {
+  /* Primary - Ubuntu Green (community, growth) */
+  --ion-color-primary: #00A86B;
+  --ion-color-primary-rgb: 0, 168, 107;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #00945E;
+  --ion-color-primary-tint: #1AB17A;
+
+  /* Secondary - Warm Gold (trust, value) */
+  --ion-color-secondary: #F5A623;
+  --ion-color-secondary-rgb: 245, 166, 35;
+  --ion-color-secondary-contrast: #000000;
+  --ion-color-secondary-contrast-rgb: 0, 0, 0;
+  --ion-color-secondary-shade: #D8921F;
+  --ion-color-secondary-tint: #F6AF39;
+
+  /* Tertiary - Sky Blue (reliability, calm) */
+  --ion-color-tertiary: #3880ff;
+  --ion-color-tertiary-rgb: 56, 128, 255;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #3171e0;
+  --ion-color-tertiary-tint: #4c8dff;
+
+  /* Success */
+  --ion-color-success: #2dd36f;
+  --ion-color-success-rgb: 45, 211, 111;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #28ba62;
+  --ion-color-success-tint: #42d77d;
+
+  /* Warning */
+  --ion-color-warning: #ffc409;
+  --ion-color-warning-rgb: 255, 196, 9;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #e0ac08;
+  --ion-color-warning-tint: #ffca22;
+
+  /* Danger */
+  --ion-color-danger: #eb445a;
+  --ion-color-danger-rgb: 235, 68, 90;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #cf3c4f;
+  --ion-color-danger-tint: #ed576b;
+
+  /* Background */
+  --ion-background-color: #f8f9fa;
+  --ion-background-color-rgb: 248, 249, 250;
+
+  /* Text */
+  --ion-text-color: #1a1a1a;
+  --ion-text-color-rgb: 26, 26, 26;
+
+  /* Custom Indlela variables */
+  --indlela-spacing-xs: 4px;
+  --indlela-spacing-sm: 8px;
+  --indlela-spacing-md: 16px;
+  --indlela-spacing-lg: 24px;
+  --indlela-spacing-xl: 32px;
+
+  --indlela-radius-sm: 8px;
+  --indlela-radius-md: 12px;
+  --indlela-radius-lg: 16px;
+  --indlela-radius-full: 9999px;
+
+  /* Minimum touch target for accessibility (44x44px) */
+  --indlela-touch-target: 44px;
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ion-background-color: #121212;
+    --ion-background-color-rgb: 18, 18, 18;
+
+    --ion-text-color: #ffffff;
+    --ion-text-color-rgb: 255, 255, 255;
+
+    --ion-color-step-50: #1e1e1e;
+    --ion-color-step-100: #2a2a2a;
+    --ion-color-step-150: #363636;
+    --ion-color-step-200: #414141;
+    --ion-color-step-250: #4d4d4d;
+    --ion-color-step-300: #595959;
+    --ion-color-step-350: #656565;
+    --ion-color-step-400: #717171;
+    --ion-color-step-450: #7d7d7d;
+    --ion-color-step-500: #898989;
+    --ion-color-step-550: #949494;
+    --ion-color-step-600: #a0a0a0;
+    --ion-color-step-650: #acacac;
+    --ion-color-step-700: #b8b8b8;
+    --ion-color-step-750: #c4c4c4;
+    --ion-color-step-800: #d0d0d0;
+    --ion-color-step-850: #dbdbdb;
+    --ion-color-step-900: #e7e7e7;
+    --ion-color-step-950: #f3f3f3;
+
+    --ion-item-background: #1e1e1e;
+    --ion-card-background: #1e1e1e;
+  }
+}
+
+/* Global styles */
+* {
+  box-sizing: border-box;
+}
+
+/* Ensure minimum touch targets for accessibility */
+ion-button,
+ion-item,
+ion-fab-button,
+.clickable {
+  min-height: var(--indlela-touch-target);
+  min-width: var(--indlela-touch-target);
+}
+
+/* Card styles */
+ion-card {
+  border-radius: var(--indlela-radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Page transitions */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+}
+
+/* Offline indicator styles */
+.offline-banner {
+  background-color: var(--ion-color-warning);
+  color: var(--ion-color-warning-contrast);
+  padding: var(--indlela-spacing-sm) var(--indlela-spacing-md);
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Rating stars */
+.star-rating {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.star-rating ion-icon {
+  color: var(--ion-color-secondary);
+}
+
+/* Provider card styles */
+.provider-card {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.provider-card:active {
+  transform: scale(0.98);
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--indlela-radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.pending {
+  background-color: rgba(255, 196, 9, 0.2);
+  color: #e0ac08;
+}
+
+.status-badge.accepted {
+  background-color: rgba(56, 128, 255, 0.2);
+  color: #3171e0;
+}
+
+.status-badge.in-progress {
+  background-color: rgba(0, 168, 107, 0.2);
+  color: #00945E;
+}
+
+.status-badge.completed {
+  background-color: rgba(45, 211, 111, 0.2);
+  color: #28ba62;
+}
+
+.status-badge.cancelled {
+  background-color: rgba(235, 68, 90, 0.2);
+  color: #cf3c4f;
+}
+
+/* Empty state styles */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--indlela-spacing-xl);
+  text-align: center;
+}
+
+.empty-state ion-icon {
+  font-size: 64px;
+  color: var(--ion-color-medium);
+  margin-bottom: var(--indlela-spacing-md);
+}
+
+.empty-state h3 {
+  margin: 0 0 var(--indlela-spacing-sm);
+  color: var(--ion-text-color);
+}
+
+.empty-state p {
+  margin: 0;
+  color: var(--ion-color-medium);
+}
+
+/* Loading skeleton */
+.skeleton-text {
+  background: linear-gradient(
+    90deg,
+    var(--ion-color-step-100) 25%,
+    var(--ion-color-step-200) 50%,
+    var(--ion-color-step-100) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Safe area padding for notched devices */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Utility classes */
+.text-center {
+  text-align: center;
+}
+
+.text-muted {
+  color: var(--ion-color-medium);
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.mb-0 {
+  margin-bottom: 0;
+}
+
+.mt-auto {
+  margin-top: auto;
+}

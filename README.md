@@ -127,9 +127,21 @@ NUXT_PUBLIC_API_URL=http://localhost:8000
 - **OTP expiry**: 5 minutes
 - **Service radius**: Default 10km
 
+## Documentation
+
+Comprehensive developer documentation is available in the [`/docs`](./docs) directory:
+
+- **Getting Started**: [Setup Guide](./docs/getting-started/setup.md) | [Architecture](./docs/getting-started/architecture.md) | [First Contribution](./docs/getting-started/first-contribution.md)
+- **Development Guides**: [Offline-First](./docs/guides/offline-first.md) | [API Integration](./docs/guides/api-integration.md)
+- **Code Standards**: [Code Style](./docs/standards/code-style.md)
+- **Advanced**: See [DEVELOPER-DOCUMENTATION.md](./DEVELOPER-DOCUMENTATION.md) for complete technical reference
+
 ## Contributing
 
-Please read the [DEVELOPER-DOCUMENTATION.md](./DEVELOPER-DOCUMENTATION.md) for detailed development guidelines.
+1. Read the [First Contribution Guide](./docs/getting-started/first-contribution.md)
+2. Follow the [Code Style Guide](./docs/standards/code-style.md)
+3. Ensure all tests pass: `pnpm test`
+4. Create a pull request
 
 ## License
 

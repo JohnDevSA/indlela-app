@@ -133,18 +133,23 @@ onMounted(() => {
         <IonRefresherContent />
       </IonRefresher>
 
-      <!-- Category Chips -->
-      <div class="category-chips">
-        <IonChip
-          v-for="category in mockCategories"
-          :key="category.id"
-          :color="selectedCategory === category.id ? 'primary' : 'medium'"
-          :outline="selectedCategory !== category.id"
-          @click="selectCategory(category.id)"
-        >
-          <span class="chip-icon">{{ category.icon }}</span>
-          {{ category.name }}
-        </IonChip>
+      <!-- Category Tabs - Polished Design -->
+      <div class="category-tabs-wrapper">
+        <div class="category-tabs-scroll">
+          <button
+            v-for="category in mockCategories"
+            :key="category.id"
+            class="category-tab"
+            :class="{ active: selectedCategory === category.id }"
+            @click="selectCategory(category.id)"
+            type="button"
+          >
+            <span class="category-tab-icon">{{ category.icon }}</span>
+            <span class="category-tab-label">{{ category.name }}</span>
+          </button>
+        </div>
+        <div class="category-tabs-fade-left" />
+        <div class="category-tabs-fade-right" />
       </div>
 
       <!-- View Segment -->
@@ -241,20 +246,185 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.category-chips {
+/* ==========================================================================
+   CATEGORY TABS - POLISHED DESIGN
+   Modern, accessible, touch-friendly category filtering
+   ========================================================================== */
+
+.category-tabs-wrapper {
+  position: relative;
+  padding: var(--space-4) 0;
+  background: var(--color-neutral-0);
+  border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.category-tabs-scroll {
   display: flex;
-  gap: 8px;
-  padding: 12px 16px;
+  gap: var(--space-2);
+  padding: 0 var(--space-4);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  scroll-behavior: smooth;
 }
 
-.category-chips::-webkit-scrollbar {
-  display: none;
+.category-tabs-scroll::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
 }
 
-.chip-icon {
-  margin-right: 4px;
+/* Individual category tab button */
+.category-tab {
+  /* Accessibility - 44px minimum touch target */
+  min-height: var(--touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+
+  /* Typography */
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  white-space: nowrap;
+
+  /* Visual design */
+  background: var(--color-neutral-100);
+  color: var(--color-neutral-700);
+  border: 1.5px solid var(--color-neutral-200);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-xs);
+
+  /* Remove default button styles */
+  outline: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  /* Smooth transitions for all interactive states */
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+/* Icon within tab */
+.category-tab-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: transform var(--duration-normal) var(--ease-spring);
+}
+
+/* Label within tab */
+.category-tab-label {
+  line-height: 1;
+}
+
+/* Hover state (desktop/tablet) */
+@media (hover: hover) {
+  .category-tab:hover:not(.active) {
+    background: var(--color-neutral-50);
+    border-color: var(--color-neutral-300);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .category-tab:hover .category-tab-icon {
+    transform: scale(1.1);
+  }
+}
+
+/* Active/pressed state */
+.category-tab:active:not(.active) {
+  transform: scale(0.97);
+  transition-duration: var(--duration-fast);
+}
+
+/* Selected/active state */
+.category-tab.active {
+  background: var(--color-primary-500);
+  color: var(--color-neutral-0);
+  border-color: var(--color-primary-600);
+  box-shadow: var(--shadow-primary);
+  font-weight: var(--font-semibold);
+  transform: scale(1.02);
+}
+
+.category-tab.active .category-tab-icon {
+  transform: scale(1.15);
+}
+
+/* Focus visible for accessibility (keyboard navigation) */
+.category-tab:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+/* Fade indicators for scrollable content */
+.category-tabs-fade-left,
+.category-tabs-fade-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+.category-tabs-fade-left {
+  left: 0;
+  background: linear-gradient(to right, var(--color-neutral-0), transparent);
+}
+
+.category-tabs-fade-right {
+  right: 0;
+  background: linear-gradient(to left, var(--color-neutral-0), transparent);
+}
+
+/* Show fade indicators when content is scrollable */
+.category-tabs-wrapper:has(.category-tabs-scroll:not(:hover)) .category-tabs-fade-right {
+  opacity: 1;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .category-tabs-wrapper {
+    background: var(--color-neutral-50);
+    border-bottom-color: var(--color-neutral-200);
+  }
+
+  .category-tab {
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-900);
+    border-color: var(--color-neutral-200);
+  }
+
+  @media (hover: hover) {
+    .category-tab:hover:not(.active) {
+      background: var(--color-neutral-200);
+      border-color: var(--color-neutral-300);
+    }
+  }
+
+  .category-tabs-fade-left {
+    background: linear-gradient(to right, var(--color-neutral-50), transparent);
+  }
+
+  .category-tabs-fade-right {
+    background: linear-gradient(to left, var(--color-neutral-50), transparent);
+  }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .category-tab,
+  .category-tab-icon,
+  .category-tabs-fade-left,
+  .category-tabs-fade-right {
+    transition: none !important;
+  }
+
+  .category-tab.active .category-tab-icon {
+    transform: none;
+  }
 }
 
 .view-segment {

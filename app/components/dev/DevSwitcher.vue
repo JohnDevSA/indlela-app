@@ -2,14 +2,15 @@
 import {
   IonFab,
   IonFabButton,
-  IonFabList,
   IonIcon,
   IonChip,
 } from '@ionic/vue'
-import { code, person, briefcase, shield, home, settings, list, calendar, wallet } from 'ionicons/icons'
+import { code, person, briefcase, shield, logIn, logOut, personAdd } from 'ionicons/icons'
+import { useAuthStore, mockUsers, type MockUserType } from '~/stores/auth'
 
 const router = useRouter()
 const route = useRoute()
+const authStore = useAuthStore()
 
 const isOpen = ref(false)
 
@@ -18,6 +19,7 @@ const currentMode = computed(() => {
   if (route.path.startsWith('/provider-dashboard')) return 'provider'
   if (route.path.startsWith('/admin')) return 'admin'
   if (route.path.startsWith('/auth')) return 'auth'
+  if (route.path.startsWith('/onboarding')) return 'onboarding'
   return 'customer'
 })
 
@@ -26,7 +28,17 @@ const modeColors: Record<string, string> = {
   provider: 'success',
   admin: 'danger',
   auth: 'warning',
+  onboarding: 'tertiary',
 }
+
+// Account simulation options
+const accountTypes: { key: MockUserType; label: string; icon: string; color: string; description: string }[] = [
+  { key: 'customer', label: 'Customer', icon: person, color: 'primary', description: 'Thabo Molefe (verified)' },
+  { key: 'provider', label: 'Provider', icon: briefcase, color: 'success', description: 'Thandi Mokoena (verified)' },
+  { key: 'admin', label: 'Admin', icon: shield, color: 'danger', description: 'Admin User' },
+  { key: 'newCustomer', label: 'New Customer', icon: personAdd, color: 'tertiary', description: 'Needs onboarding' },
+  { key: 'newProvider', label: 'New Provider', icon: personAdd, color: 'tertiary', description: 'Needs onboarding' },
+]
 
 const quickLinks = [
   { label: 'Customer', icon: person, color: 'primary', links: [
@@ -46,7 +58,10 @@ const quickLinks = [
     { name: 'Users', path: '/admin/users' },
     { name: 'Providers', path: '/admin/providers' },
     { name: 'Bookings', path: '/admin/bookings' },
-    { name: 'Reports', path: '/admin/reports' },
+  ]},
+  { label: 'Onboarding', icon: personAdd, color: 'tertiary', links: [
+    { name: 'Customer', path: '/onboarding/customer' },
+    { name: 'Provider', path: '/onboarding/provider' },
   ]},
   { label: 'Auth', icon: person, color: 'warning', links: [
     { name: 'Login', path: '/auth/login' },
@@ -61,6 +76,32 @@ const navigate = (path: string) => {
 
 const toggleOpen = () => {
   isOpen.value = !isOpen.value
+}
+
+const loginAs = (userType: MockUserType) => {
+  const user = authStore.devLogin(userType)
+
+  // Navigate based on user type and onboarding status
+  if (!user.onboardingCompleted) {
+    if (user.role === 'provider') {
+      router.push('/onboarding/provider')
+    } else {
+      router.push('/onboarding/customer')
+    }
+  } else if (user.role === 'provider') {
+    router.push('/provider-dashboard')
+  } else if (user.role === 'admin') {
+    router.push('/admin')
+  } else {
+    router.push('/')
+  }
+  isOpen.value = false
+}
+
+const logout = () => {
+  authStore.devLogout()
+  router.push('/auth/login')
+  isOpen.value = false
 }
 </script>
 
@@ -85,6 +126,52 @@ const toggleOpen = () => {
           </div>
 
           <div class="dev-content">
+            <!-- Account Simulation Section -->
+            <div class="dev-section account-section">
+              <h4>
+                <IonIcon :icon="logIn" color="primary" />
+                Simulate Account
+              </h4>
+
+              <!-- Current User Status -->
+              <div class="current-user">
+                <div v-if="authStore.isAuthenticated" class="user-info">
+                  <div class="user-details">
+                    <span class="user-name">{{ authStore.user?.name || 'Unknown' }}</span>
+                    <span class="user-role">{{ authStore.user?.role }}</span>
+                    <span v-if="!authStore.user?.onboardingCompleted" class="needs-onboarding">
+                      (needs onboarding)
+                    </span>
+                  </div>
+                  <button class="logout-btn" @click="logout">
+                    <IonIcon :icon="logOut" />
+                    Logout
+                  </button>
+                </div>
+                <div v-else class="not-logged-in">
+                  Not logged in
+                </div>
+              </div>
+
+              <!-- Quick Login Buttons -->
+              <div class="account-buttons">
+                <button
+                  v-for="account in accountTypes"
+                  :key="account.key"
+                  class="account-btn"
+                  :class="{ active: authStore.user?.id === mockUsers[account.key].id }"
+                  @click="loginAs(account.key)"
+                >
+                  <IonIcon :icon="account.icon" :color="account.color" />
+                  <div class="account-info">
+                    <span class="account-label">{{ account.label }}</span>
+                    <span class="account-desc">{{ account.description }}</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Navigation Links -->
             <div v-for="section in quickLinks" :key="section.label" class="dev-section">
               <h4>
                 <IonIcon :icon="section.icon" :color="section.color" />
@@ -129,8 +216,8 @@ const toggleOpen = () => {
 .dev-panel {
   background: var(--ion-background-color, #fff);
   border-radius: 16px;
-  width: 320px;
-  max-height: 70vh;
+  width: 340px;
+  max-height: 80vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -179,6 +266,119 @@ const toggleOpen = () => {
   font-size: 18px;
 }
 
+/* Account Simulation Styles */
+.account-section {
+  background: var(--ion-color-light-tint);
+  border-radius: 12px;
+  padding: 8px;
+  margin: 8px;
+}
+
+.current-user {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.user-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.user-role {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  text-transform: capitalize;
+}
+
+.needs-onboarding {
+  font-size: 11px;
+  color: var(--ion-color-warning-shade);
+}
+
+.not-logged-in {
+  color: var(--ion-color-medium);
+  font-style: italic;
+  font-size: 13px;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--ion-color-danger-tint);
+  color: var(--ion-color-danger);
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.account-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.account-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  background: white;
+  border: 1px solid var(--ion-border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.account-btn:hover {
+  border-color: var(--ion-color-primary);
+  background: var(--ion-color-primary-tint);
+}
+
+.account-btn.active {
+  border-color: var(--ion-color-primary);
+  background: var(--ion-color-primary-tint);
+}
+
+.account-btn ion-icon {
+  font-size: 22px;
+}
+
+.account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.account-label {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.account-desc {
+  font-size: 11px;
+  color: var(--ion-color-medium);
+}
+
+/* Navigation Links */
 .dev-links {
   display: flex;
   flex-wrap: wrap;

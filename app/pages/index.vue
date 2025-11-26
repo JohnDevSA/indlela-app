@@ -1,4 +1,9 @@
 <script setup lang="ts">
+/**
+ * Home Page - Main landing page with services and providers
+ * Refined to use Indlela design system components
+ */
+
 import {
   IonPage,
   IonHeader,
@@ -6,21 +11,9 @@ import {
   IonTitle,
   IonContent,
   IonSearchbar,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonIcon,
-  IonAvatar,
-  IonChip,
-  IonSkeletonText,
   IonRefresher,
   IonRefresherContent,
 } from '@ionic/vue'
-import { location, star, chevronForward } from 'ionicons/icons'
 import {
   popularServices as mockPopularServices,
   nearbyProviders as mockNearbyProviders,
@@ -44,7 +37,6 @@ const nearbyProviders = ref(mockNearbyProviders)
 
 // Methods
 const handleRefresh = async (event: any) => {
-  // Simulate refresh
   await mockDelay(800)
   event.target?.complete()
 }
@@ -81,9 +73,10 @@ onMounted(() => {
         <IonSearchbar
           v-model="searchQuery"
           :placeholder="t('home.search_placeholder')"
-          @ionChange="searchProviders"
           show-cancel-button="focus"
           animated
+          class="search-bar"
+          @ionChange="searchProviders"
         />
       </IonToolbar>
     </IonHeader>
@@ -93,171 +86,261 @@ onMounted(() => {
         <IonRefresherContent />
       </IonRefresher>
 
+      <!-- Offline Indicator -->
+      <OfflineIndicator />
+
       <!-- Popular Services Section -->
       <section class="section">
-        <h2 class="section-title">{{ t('home.popular_services') }}</h2>
-        <div class="services-grid">
-          <template v-if="isLoading">
-            <div v-for="i in 6" :key="i" class="service-card skeleton">
-              <IonSkeletonText animated style="width: 40px; height: 40px" />
-              <IonSkeletonText animated style="width: 80%" />
-            </div>
-          </template>
-          <template v-else>
-            <div
-              v-for="service in popularServices"
-              :key="service.id"
-              class="service-card"
-              @click="viewService(service.id)"
-            >
-              <span class="service-icon">{{ service.icon }}</span>
-              <span class="service-name">{{ t(`services.${service.name}`) }}</span>
-              <span class="service-count">{{ service.count }} {{ t('home.providers') }}</span>
-            </div>
-          </template>
+        <div class="section__header">
+          <h2 class="section__title">{{ t('home.popular_services') }}</h2>
+          <button class="section__link" @click="router.push('/services')">
+            {{ t('common.view_all') }}
+            <Icon name="heroicons:chevron-right" class="section__link-icon" />
+          </button>
+        </div>
+
+        <div class="services-grid stagger-list">
+          <ServiceCard
+            v-for="(service, index) in isLoading ? 6 : popularServices"
+            :key="isLoading ? `skeleton-${index}` : service.id"
+            :id="service?.id || ''"
+            :emoji="service?.icon"
+            :name="service?.name ? t(`services.${service.name}`) : ''"
+            :count="service?.count"
+            :loading="isLoading"
+            class="stagger-item"
+            @click="viewService"
+          />
         </div>
       </section>
 
       <!-- Nearby Providers Section -->
       <section class="section">
-        <h2 class="section-title">{{ t('home.nearby_providers') }}</h2>
-        <IonList>
-          <template v-if="isLoading">
-            <IonItem v-for="i in 3" :key="i">
-              <IonAvatar slot="start">
-                <IonSkeletonText animated />
-              </IonAvatar>
-              <IonLabel>
-                <IonSkeletonText animated style="width: 60%" />
-                <IonSkeletonText animated style="width: 40%" />
-              </IonLabel>
-            </IonItem>
-          </template>
-          <template v-else>
-            <IonItem
-              v-for="provider in nearbyProviders"
-              :key="provider.id"
-              button
-              detail
-              @click="viewProvider(provider.id)"
-            >
-              <IonAvatar slot="start">
-                <img
-                  v-if="provider.avatar"
-                  :src="provider.avatar"
-                  :alt="provider.name"
-                />
-                <div v-else class="avatar-placeholder">
-                  {{ provider.name.charAt(0) }}
-                </div>
-              </IonAvatar>
-              <IonLabel>
-                <h2>{{ provider.name }}</h2>
-                <p>{{ provider.service }}</p>
-                <div class="provider-meta">
-                  <span class="rating">
-                    <IonIcon :icon="star" color="warning" />
-                    {{ provider.rating }} ({{ provider.reviews }})
-                  </span>
-                  <span class="distance">
-                    <IonIcon :icon="location" />
-                    {{ provider.distance }}
-                  </span>
-                </div>
-              </IonLabel>
-            </IonItem>
-          </template>
-        </IonList>
+        <div class="section__header">
+          <h2 class="section__title">{{ t('home.nearby_providers') }}</h2>
+          <button class="section__link" @click="router.push('/providers')">
+            {{ t('common.view_all') }}
+            <Icon name="heroicons:chevron-right" class="section__link-icon" />
+          </button>
+        </div>
+
+        <div class="providers-list">
+          <ProviderCard
+            v-for="(provider, index) in isLoading ? 3 : nearbyProviders"
+            :key="isLoading ? `skeleton-${index}` : provider.id"
+            :id="provider?.id || ''"
+            :name="provider?.name || ''"
+            :service="provider?.service || ''"
+            :avatar="provider?.avatar"
+            :rating="provider?.rating"
+            :reviews="provider?.reviews"
+            :distance="provider?.distance"
+            :loading="isLoading"
+            variant="list"
+            @click="viewProvider"
+          />
+
+          <!-- Empty state -->
+          <EmptyState
+            v-if="!isLoading && nearbyProviders.length === 0"
+            icon="heroicons:user-group"
+            :title="t('home.no_providers')"
+            :message="t('home.no_providers_message')"
+            size="sm"
+          />
+        </div>
+      </section>
+
+      <!-- AI Assistant Prompt -->
+      <section class="section ai-prompt-section">
+        <UiCard variant="filled" padding="lg" class="ai-prompt-card">
+          <div class="ai-prompt">
+            <div class="ai-prompt__icon">
+              <Icon name="ph:robot" />
+            </div>
+            <div class="ai-prompt__content">
+              <h3 class="ai-prompt__title">{{ t('home.ai_assistant_title') }}</h3>
+              <p class="ai-prompt__message">{{ t('home.ai_assistant_message') }}</p>
+            </div>
+          </div>
+          <AiSuggestionChips
+            :suggestions="[
+              { label: t('home.suggestions.plumber'), icon: 'heroicons:wrench-screwdriver' },
+              { label: t('home.suggestions.electrician'), icon: 'heroicons:bolt' },
+              { label: t('home.suggestions.cleaner'), icon: 'heroicons:sparkles' },
+            ]"
+            class="ai-prompt__suggestions"
+            @select="(s) => router.push(`/services?q=${s.label}`)"
+          />
+        </UiCard>
       </section>
     </IonContent>
   </IonPage>
 </template>
 
 <style scoped>
+/* Section styling */
 .section {
-  padding: 16px;
+  padding: var(--space-4);
 }
 
-.section-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0 0 16px;
-  color: var(--ion-text-color);
+.section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
 }
 
+.section__title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--color-neutral-900);
+}
+
+.section__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-primary-500);
+  cursor: pointer;
+}
+
+.section__link:hover {
+  color: var(--color-primary-600);
+}
+
+.section__link-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Services grid */
 .services-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: var(--space-3);
 }
 
-.service-card {
+/* Providers list */
+.providers-list {
+  background: var(--color-neutral-0);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+/* AI Prompt section */
+.ai-prompt-section {
+  padding-bottom: var(--space-8);
+}
+
+.ai-prompt-card {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-50) 0%,
+    var(--color-neutral-50) 100%
+  );
+}
+
+.ai-prompt {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px 8px;
-  background: var(--ion-card-background, white);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  cursor: pointer;
-  transition: transform 0.2s ease;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
 }
 
-.service-card:active {
-  transform: scale(0.95);
-}
-
-.service-card.skeleton {
-  height: 100px;
-}
-
-.service-icon {
-  font-size: 32px;
-  margin-bottom: 8px;
-}
-
-.service-name {
-  font-size: 12px;
-  font-weight: 600;
-  text-align: center;
-  color: var(--ion-text-color);
-}
-
-.service-count {
-  font-size: 10px;
-  color: var(--ion-color-medium);
-  margin-top: 4px;
-}
-
-.avatar-placeholder {
-  width: 100%;
-  height: 100%;
+.ai-prompt__icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--ion-color-primary);
-  color: white;
-  font-size: 18px;
-  font-weight: 600;
+  width: 48px;
+  height: 48px;
+  background: var(--color-primary-100);
+  border-radius: var(--radius-lg);
+  flex-shrink: 0;
 }
 
-.provider-meta {
-  display: flex;
-  gap: 16px;
-  margin-top: 4px;
+.ai-prompt__icon :deep(svg) {
+  width: 24px;
+  height: 24px;
+  color: var(--color-primary-600);
 }
 
-.rating,
-.distance {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: var(--ion-color-medium);
+.ai-prompt__content {
+  flex: 1;
 }
 
-.rating ion-icon,
-.distance ion-icon {
-  font-size: 14px;
+.ai-prompt__title {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--color-neutral-900);
+}
+
+.ai-prompt__message {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-neutral-600);
+  line-height: var(--leading-relaxed);
+}
+
+.ai-prompt__suggestions {
+  margin-top: var(--space-2);
+}
+
+/* Search bar customization */
+.search-bar {
+  --background: rgba(255, 255, 255, 0.15);
+  --color: white;
+  --placeholder-color: rgba(255, 255, 255, 0.7);
+  --icon-color: rgba(255, 255, 255, 0.7);
+  --clear-button-color: rgba(255, 255, 255, 0.7);
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .section__title {
+    color: var(--color-neutral-100);
+  }
+
+  .providers-list {
+    background: var(--color-neutral-900);
+  }
+
+  .ai-prompt-card {
+    background: linear-gradient(
+      135deg,
+      rgba(0, 168, 107, 0.1) 0%,
+      var(--color-neutral-800) 100%
+    );
+  }
+
+  .ai-prompt__icon {
+    background: rgba(0, 168, 107, 0.15);
+  }
+
+  .ai-prompt__icon :deep(svg) {
+    color: var(--color-primary-400);
+  }
+
+  .ai-prompt__title {
+    color: var(--color-neutral-100);
+  }
+
+  .ai-prompt__message {
+    color: var(--color-neutral-400);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 360px) {
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>

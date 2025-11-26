@@ -25,11 +25,13 @@
     "delete": "Verwyder",
     "edit": "Wysig",
     "view": "Bekyk",
+    "view_all": "Bekyk Alles",
     "confirm": "Bevestig",
     "yes": "Ja",
     "no": "Nee",
     "ok": "Goed",
     "offline_mode": "Jy is aflyn",
+    "offline_message": "Sommige funksies mag beperk wees",
     "pending_sync": "{count} wag om te sinkroniseer",
     "no_results": "Geen resultate gevind nie",
     "pull_to_refresh": "Trek om te verfris"
@@ -46,12 +48,14 @@
     "otp_title": "Voer Verifikasiekode In",
     "otp_subtitle": "Ons het 'n 6-syfer kode na {phone} gestuur",
     "otp_placeholder": "Voer 6-syfer kode in",
+    "otp_help_text": "Het jy nie die kode ontvang nie? Kyk jou SMS'e of versoek 'n nuwe een.",
     "verify_otp": "Verifieer",
     "resend_otp": "Stuur Kode Weer",
     "resend_in": "Stuur weer in {seconds}s",
     "wrong_number": "Verkeerde nommer?",
     "logout": "Teken Uit",
-    "logout_confirm": "Is jy seker jy wil uitteken?"
+    "logout_confirm": "Teken Uit?",
+    "logout_message": "Is jy seker jy wil van jou rekening uitteken?"
   },
   "home": {
     "welcome": "Indlela",
@@ -59,7 +63,15 @@
     "popular_services": "Gewilde Dienste",
     "nearby_providers": "Nabygeleë Verskaffers",
     "providers": "verskaffers",
-    "view_all": "Bekyk Alles"
+    "no_providers": "Geen verskaffers naby nie",
+    "no_providers_message": "Ons kon geen verskaffers in jou area vind nie. Probeer om jou soektog uit te brei.",
+    "ai_assistant_title": "Hulp nodig om 'n diens te vind?",
+    "ai_assistant_message": "Ons KI-assistent kan jou help om die regte diensverskaffer vir jou behoeftes te vind.",
+    "suggestions": {
+      "plumber": "Vind 'n loodgieter",
+      "electrician": "Vind 'n elektrisiën",
+      "cleaner": "Vind 'n skoonmaker"
+    }
   },
   "services": {
     "title": "Dienste",
@@ -117,6 +129,10 @@
     "booking_confirmed": "Bespreking Bevestig!",
     "booking_ref": "Verwysing: {ref}",
     "provider_notified": "Die verskaffer is in kennis gestel",
+    "filter": {
+      "upcoming": "Komende",
+      "past": "Verlede"
+    },
     "status": {
       "pending": "Hangende",
       "accepted": "Aanvaar",
@@ -135,7 +151,12 @@
     "cancel_reason": "Rede vir kansellasie",
     "empty": {
       "title": "Nog Geen Besprekings",
-      "message": "Jou besprekingsgeskiedenis sal hier verskyn"
+      "message": "Jou besprekingsgeskiedenis sal hier verskyn",
+      "upcoming_title": "Geen Komende Besprekings",
+      "upcoming_message": "Jy het geen geskeduleerde besprekings nie. Blaai deur dienste om 'n verskaffer te bespreek.",
+      "past_title": "Geen Vorige Besprekings",
+      "past_message": "Jou voltooide en gekanselleerde besprekings sal hier verskyn.",
+      "browse_services": "Blaai Dienste"
     }
   },
   "review": {
@@ -155,23 +176,29 @@
   },
   "settings": {
     "title": "Instellings",
+    "account": "Rekening",
     "profile": "Profiel",
     "edit_profile": "Wysig Profiel",
     "name": "Naam",
     "email": "E-pos",
     "phone": "Foon",
     "language": "Taal",
+    "select_language": "Kies Taal",
     "notifications": "Kennisgewings",
     "push_notifications": "Stootkennisgewings",
     "sms_notifications": "SMS-kennisgewings",
     "email_notifications": "E-poskennisgewings",
-    "privacy": "Privaatheid",
+    "provider_section": "Verskaffer",
+    "switch_to_provider": "Skakel na Verskaffermodus",
+    "provider_description": "Bestuur jou dienste en verdienste",
+    "verified_provider": "Geverifieerde Verskaffer",
+    "support": "Ondersteuning",
+    "privacy": "Privaatheidsbeleid",
     "terms": "Diensvoorwaardes",
     "help": "Hulp & Ondersteuning",
     "about": "Oor Indlela",
-    "version": "Weergawe {version}",
-    "become_provider": "Word 'n Verskaffer",
-    "switch_to_provider": "Skakel na Verskaffermodus"
+    "version": "v{version}",
+    "become_provider": "Word 'n Verskaffer"
   },
   "errors": {
     "network": "Netwerkfout. Kontroleer asseblief jou verbinding.",

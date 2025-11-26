@@ -25,11 +25,13 @@
     "delete": "Phimola",
     "edit": "Fetola",
     "view": "Bona",
+    "view_all": "Bona Tsotlhe",
     "confirm": "Netefatsa",
     "yes": "Ee",
     "no": "Nnyaa",
     "ok": "Go Siame",
     "offline_mode": "Ga o a golagana",
+    "offline_message": "Dikarolo dingwe di ka nna tsa bo di na le mellwane",
     "pending_sync": "{count} e emetse go golagana",
     "no_results": "Ga go na dipholo tse di fitlhetsweng",
     "pull_to_refresh": "Goga go ntšhwafatsa"
@@ -46,12 +48,14 @@
     "otp_title": "Tsenya Khoutu ya Netefatso",
     "otp_subtitle": "Re romeletse khoutu ya dinomoro di le 6 go {phone}",
     "otp_placeholder": "Tsenya khoutu ya dinomoro di le 6",
+    "otp_help_text": "Ga o a amogela khoutu? Leba di-SMS tsa gago kgotsa kopa e ntšhwa.",
     "verify_otp": "Netefatsa",
     "resend_otp": "Romela Khoutu Gape",
     "resend_in": "Romela gape mo {seconds}s",
     "wrong_number": "Nomoro e e fosagetseng?",
     "logout": "Tswa",
-    "logout_confirm": "A o tlhomamisegile gore o batla go tswa?"
+    "logout_confirm": "Tswa?",
+    "logout_message": "A o tlhomamisegile gore o batla go tswa mo akhaontong ya gago?"
   },
   "home": {
     "welcome": "Indlela",
@@ -59,7 +63,15 @@
     "popular_services": "Ditirelo Tse di Ratwang",
     "nearby_providers": "Bafani ba ba Gaufi",
     "providers": "bafani",
-    "view_all": "Bona Tsotlhe"
+    "no_providers": "Ga go na bafani gaufi",
+    "no_providers_message": "Ga re a bona bafani mo lefelong la gago. Leka go atolosa patlo ya gago.",
+    "ai_assistant_title": "O tlhoka thuso go bona tirelo?",
+    "ai_assistant_message": "Mothusi wa rona wa AI a ka go thusa go bona mofani wa tirelo o o siameng.",
+    "suggestions": {
+      "plumber": "Bona mofani wa dipompo",
+      "electrician": "Bona mofani wa motlakase",
+      "cleaner": "Bona mophepafatsi"
+    }
   },
   "services": {
     "title": "Ditirelo",
@@ -117,6 +129,10 @@
     "booking_confirmed": "Pukiso e Netefaditswe!",
     "booking_ref": "Ref: {ref}",
     "provider_notified": "Mofani o itsisiwe",
+    "filter": {
+      "upcoming": "Tse di Tlang",
+      "past": "Tse di Fetileng"
+    },
     "status": {
       "pending": "E Emetse",
       "accepted": "E Amogelwa",
@@ -135,7 +151,12 @@
     "cancel_reason": "Lebaka la go khansela",
     "empty": {
       "title": "Ga go na Dipukiso Ga Jaana",
-      "message": "Hisetori ya dipukiso tsa gago e tla bonala fano"
+      "message": "Hisetori ya dipukiso tsa gago e tla bonala fano",
+      "upcoming_title": "Ga go na Dipukiso Tse di Tlang",
+      "upcoming_message": "Ga o na dipukiso tse di beeletsweng. Batla ditirelo go buka mofani.",
+      "past_title": "Ga go na Dipukiso Tse di Fetileng",
+      "past_message": "Dipukiso tsa gago tse di feditseng le tse di khanseditsweng di tla bonala fano.",
+      "browse_services": "Batla Ditirelo"
     }
   },
   "review": {
@@ -155,23 +176,29 @@
   },
   "settings": {
     "title": "Ditlhophiso",
+    "account": "Akhaonto",
     "profile": "Porofaele",
     "edit_profile": "Fetola Porofaele",
     "name": "Leina",
     "email": "Imeili",
     "phone": "Mogala",
     "language": "Puo",
+    "select_language": "Tlhopha Puo",
     "notifications": "Ditsiboso",
     "push_notifications": "Ditsiboso tsa Push",
     "sms_notifications": "Ditsiboso tsa SMS",
     "email_notifications": "Ditsiboso tsa Imeili",
-    "privacy": "Sephiri",
+    "provider_section": "Mofani",
+    "switch_to_provider": "Fetogela go Mokgwa wa Mofani",
+    "provider_description": "Laola ditirelo tsa gago le dituelo tsa gago",
+    "verified_provider": "Mofani o o Netefaditsweng",
+    "support": "Tshegetso",
+    "privacy": "Pholisi ya Sephiri",
     "terms": "Melao ya Tirelo",
     "help": "Thuso le Tshegetso",
     "about": "Ka Ga Indlela",
-    "version": "Tokololo {version}",
-    "become_provider": "Nna Mofani",
-    "switch_to_provider": "Fetogela go Mokgwa wa Mofani"
+    "version": "v{version}",
+    "become_provider": "Nna Mofani"
   },
   "errors": {
     "network": "Phoso ya neteweke. Tsweetswee leka kgolagano ya gago.",

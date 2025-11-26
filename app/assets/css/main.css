@@ -1,77 +1,101 @@
 /* Indlela - Main Styles */
+/* Import design tokens and animations */
+@import './design-tokens.css';
+@import './animations.css';
 
-/* CSS Variables - Brand Colors */
+/* ==========================================================================
+   IONIC THEME OVERRIDES
+   Bridge design tokens to Ionic's CSS variable system
+   ========================================================================== */
+
 :root {
   /* Primary - Ubuntu Green (community, growth) */
-  --ion-color-primary: #00A86B;
+  --ion-color-primary: var(--color-primary-500);
   --ion-color-primary-rgb: 0, 168, 107;
   --ion-color-primary-contrast: #ffffff;
   --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #00945E;
-  --ion-color-primary-tint: #1AB17A;
+  --ion-color-primary-shade: var(--color-primary-600);
+  --ion-color-primary-tint: var(--color-primary-400);
 
   /* Secondary - Warm Gold (trust, value) */
-  --ion-color-secondary: #F5A623;
+  --ion-color-secondary: var(--color-secondary-500);
   --ion-color-secondary-rgb: 245, 166, 35;
   --ion-color-secondary-contrast: #000000;
   --ion-color-secondary-contrast-rgb: 0, 0, 0;
-  --ion-color-secondary-shade: #D8921F;
-  --ion-color-secondary-tint: #F6AF39;
+  --ion-color-secondary-shade: var(--color-secondary-600);
+  --ion-color-secondary-tint: var(--color-secondary-400);
 
-  /* Tertiary - Sky Blue (reliability, calm) */
-  --ion-color-tertiary: #3880ff;
-  --ion-color-tertiary-rgb: 56, 128, 255;
+  /* Tertiary - Info Blue */
+  --ion-color-tertiary: var(--color-info-500);
+  --ion-color-tertiary-rgb: 59, 130, 246;
   --ion-color-tertiary-contrast: #ffffff;
   --ion-color-tertiary-contrast-rgb: 255, 255, 255;
-  --ion-color-tertiary-shade: #3171e0;
-  --ion-color-tertiary-tint: #4c8dff;
+  --ion-color-tertiary-shade: var(--color-info-600);
+  --ion-color-tertiary-tint: #60a5fa;
 
   /* Success */
-  --ion-color-success: #2dd36f;
-  --ion-color-success-rgb: 45, 211, 111;
+  --ion-color-success: var(--color-success-500);
+  --ion-color-success-rgb: 16, 185, 129;
   --ion-color-success-contrast: #ffffff;
   --ion-color-success-contrast-rgb: 255, 255, 255;
-  --ion-color-success-shade: #28ba62;
-  --ion-color-success-tint: #42d77d;
+  --ion-color-success-shade: var(--color-success-600);
+  --ion-color-success-tint: #34d399;
 
   /* Warning */
-  --ion-color-warning: #ffc409;
-  --ion-color-warning-rgb: 255, 196, 9;
+  --ion-color-warning: var(--color-warning-500);
+  --ion-color-warning-rgb: 245, 158, 11;
   --ion-color-warning-contrast: #000000;
   --ion-color-warning-contrast-rgb: 0, 0, 0;
-  --ion-color-warning-shade: #e0ac08;
-  --ion-color-warning-tint: #ffca22;
+  --ion-color-warning-shade: var(--color-warning-600);
+  --ion-color-warning-tint: #fbbf24;
 
   /* Danger */
-  --ion-color-danger: #eb445a;
-  --ion-color-danger-rgb: 235, 68, 90;
+  --ion-color-danger: var(--color-error-500);
+  --ion-color-danger-rgb: 239, 68, 68;
   --ion-color-danger-contrast: #ffffff;
   --ion-color-danger-contrast-rgb: 255, 255, 255;
-  --ion-color-danger-shade: #cf3c4f;
-  --ion-color-danger-tint: #ed576b;
+  --ion-color-danger-shade: var(--color-error-600);
+  --ion-color-danger-tint: #f87171;
 
-  /* Background */
-  --ion-background-color: #f8f9fa;
-  --ion-background-color-rgb: 248, 249, 250;
+  /* Medium - for secondary text */
+  --ion-color-medium: var(--color-neutral-500);
+  --ion-color-medium-rgb: 107, 114, 128;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: var(--color-neutral-600);
+  --ion-color-medium-tint: var(--color-neutral-400);
 
-  /* Text */
-  --ion-text-color: #1a1a1a;
-  --ion-text-color-rgb: 26, 26, 26;
+  /* Light */
+  --ion-color-light: var(--color-neutral-100);
+  --ion-color-light-rgb: 243, 244, 246;
+  --ion-color-light-contrast: var(--color-neutral-900);
+  --ion-color-light-contrast-rgb: 17, 24, 39;
+  --ion-color-light-shade: var(--color-neutral-200);
+  --ion-color-light-tint: var(--color-neutral-50);
 
-  /* Custom Indlela variables */
-  --indlela-spacing-xs: 4px;
-  --indlela-spacing-sm: 8px;
-  --indlela-spacing-md: 16px;
-  --indlela-spacing-lg: 24px;
-  --indlela-spacing-xl: 32px;
+  /* Background & Text */
+  --ion-background-color: var(--color-neutral-50);
+  --ion-background-color-rgb: 249, 250, 251;
+  --ion-text-color: var(--color-neutral-900);
+  --ion-text-color-rgb: 17, 24, 39;
 
-  --indlela-radius-sm: 8px;
-  --indlela-radius-md: 12px;
-  --indlela-radius-lg: 16px;
-  --indlela-radius-full: 9999px;
+  /* Legacy Indlela variables (for backward compatibility) */
+  --indlela-spacing-xs: var(--space-1);
+  --indlela-spacing-sm: var(--space-2);
+  --indlela-spacing-md: var(--space-4);
+  --indlela-spacing-lg: var(--space-6);
+  --indlela-spacing-xl: var(--space-8);
+
+  --indlela-radius-sm: var(--radius-md);
+  --indlela-radius-md: var(--radius-lg);
+  --indlela-radius-lg: var(--radius-xl);
+  --indlela-radius-full: var(--radius-full);
 
   /* Minimum touch target for accessibility (44x44px) */
-  --indlela-touch-target: 44px;
+  --indlela-touch-target: var(--touch-target-min);
+
+  /* Typography tokens to Ionic */
+  --ion-font-family: var(--font-sans);
 }
 
 /* Dark theme support */

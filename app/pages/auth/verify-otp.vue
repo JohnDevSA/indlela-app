@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import {
-  IonInput,
-  IonButton,
-  IonSpinner,
-  IonText,
-  IonIcon,
-} from '@ionic/vue'
-import { arrowBack } from 'ionicons/icons'
+/**
+ * Verify OTP Page - 6-digit OTP verification
+ * Refined to use Indlela design system
+ */
+
+import { IonInput } from '@ionic/vue'
+import { useAuthStore } from '~/stores/auth'
 
 definePageMeta({
   layout: 'auth',
@@ -15,6 +14,7 @@ definePageMeta({
 
 const { t } = useI18n()
 const router = useRouter()
+const { haptic } = useAnimation()
 const {
   verifyOtp,
   resendOtp,
@@ -78,6 +78,7 @@ const handleOtpInput = (index: number, event: CustomEvent) => {
 
   // Auto-focus next input
   if (digit && index < 5) {
+    haptic('light')
     const nextInput = document.querySelector(
       `[data-otp-index="${index + 1}"] input`
     ) as HTMLInputElement
@@ -90,6 +91,7 @@ const handleOtpInput = (index: number, event: CustomEvent) => {
 
   // Auto-submit when complete
   if (otp.value.length === 6) {
+    haptic('medium')
     handleSubmit()
   }
 }
@@ -127,6 +129,7 @@ const handlePaste = (event: ClipboardEvent) => {
 
   // Auto-submit if complete
   if (otp.value.length === 6) {
+    haptic('medium')
     handleSubmit()
   }
 }
@@ -138,13 +141,20 @@ const handleSubmit = async () => {
   const success = await verifyOtp(otp.value)
 
   if (success) {
-    // Navigate based on user role
-    if (authStore.isProvider) {
+    haptic('success')
+    // Navigate based on user status
+    const user = authStore.user
+    if (user && !user.onboardingCompleted) {
+      router.replace(user.role === 'provider' ? '/onboarding/provider' : '/onboarding/customer')
+    } else if (authStore.isProvider) {
       router.replace('/provider-dashboard')
+    } else if (authStore.isAdmin) {
+      router.replace('/admin')
     } else {
       router.replace('/')
     }
   } else {
+    haptic('error')
     // Clear inputs on error
     otpInputs.value = ['', '', '', '', '', '']
     otp.value = ''
@@ -159,16 +169,21 @@ const handleSubmit = async () => {
 const handleResend = async () => {
   if (!canResend.value || isLoading.value) return
 
+  haptic('light')
   const success = await resendOtp()
   if (success) {
+    haptic('success')
     startCountdown()
     otpInputs.value = ['', '', '', '', '', '']
     otp.value = ''
+  } else {
+    haptic('error')
   }
 }
 
 // Go back to phone input
 const goBack = () => {
+  haptic('light')
   resetOtpFlow()
   router.replace('/auth/login')
 }
@@ -184,13 +199,15 @@ onUnmounted(() => {
     clearInterval(countdownInterval)
   }
 })
+
+const canSubmit = computed(() => otp.value.length === 6 && !isLoading.value)
 </script>
 
 <template>
   <div class="verify-page">
     <!-- Back Button -->
-    <button class="back-button" @click="goBack" :disabled="isLoading">
-      <IonIcon :icon="arrowBack" />
+    <button class="back-button" :disabled="isLoading" @click="goBack">
+      <Icon name="heroicons:arrow-left" />
       {{ t('auth.wrong_number') }}
     </button>
 
@@ -199,52 +216,67 @@ onUnmounted(() => {
 
     <!-- OTP Input -->
     <div class="otp-container" @paste="handlePaste">
-      <IonInput
+      <div
         v-for="(_, index) in otpInputs"
         :key="index"
-        :data-otp-index="index"
-        type="tel"
-        inputmode="numeric"
-        maxlength="1"
-        :value="otpInputs[index]"
-        @ionInput="handleOtpInput(index, $event)"
-        @keydown="handleKeydown(index, $event)"
-        :disabled="isLoading"
-        class="otp-input"
-        :class="{ 'has-value': otpInputs[index], 'has-error': error }"
-      />
+        :class="[
+          'otp-input-wrapper',
+          { 'otp-input-wrapper--filled': otpInputs[index] },
+          { 'otp-input-wrapper--error': error },
+        ]"
+      >
+        <IonInput
+          :data-otp-index="index"
+          type="tel"
+          inputmode="numeric"
+          maxlength="1"
+          :value="otpInputs[index]"
+          :disabled="isLoading"
+          class="otp-input"
+          @ionInput="handleOtpInput(index, $event)"
+          @keydown="handleKeydown(index, $event)"
+        />
+      </div>
     </div>
 
     <!-- Error Message -->
-    <IonText v-if="error" color="danger" class="error-text">
+    <p v-if="error" class="error-text">
+      <Icon name="heroicons:exclamation-circle" />
       {{ error }}
-    </IonText>
+    </p>
 
     <!-- Submit Button -->
-    <IonButton
-      expand="block"
-      size="large"
-      :disabled="otp.length !== 6 || isLoading"
+    <UiButton
+      variant="primary"
+      size="lg"
+      :loading="isLoading"
+      :disabled="!canSubmit"
+      :full-width="true"
       @click="handleSubmit"
-      class="submit-button"
     >
-      <IonSpinner v-if="isLoading" name="crescent" />
-      <span v-else>{{ t('auth.verify_otp') }}</span>
-    </IonButton>
+      {{ t('auth.verify_otp') }}
+    </UiButton>
 
     <!-- Resend OTP -->
     <div class="resend-section">
       <button
         v-if="canResend"
         class="resend-button"
-        @click="handleResend"
         :disabled="isLoading"
+        @click="handleResend"
       >
+        <Icon name="heroicons:arrow-path" />
         {{ t('auth.resend_otp') }}
       </button>
-      <span v-else class="resend-countdown">
-        {{ t('auth.resend_in', { seconds: resendCountdown }) }}
-      </span>
+      <div v-else class="resend-countdown">
+        <Icon name="heroicons:clock" />
+        <span>{{ t('auth.resend_in', { seconds: resendCountdown }) }}</span>
+      </div>
+    </div>
+
+    <!-- Help link -->
+    <div class="help-section">
+      <p class="help-text">{{ t('auth.otp_help_text') }}</p>
     </div>
   </div>
 </template>
@@ -253,101 +285,270 @@ onUnmounted(() => {
 .verify-page {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 100%;
 }
 
+/* Back Button */
 .back-button {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   background: none;
   border: none;
-  color: var(--ion-color-primary);
-  font-size: 14px;
-  font-weight: 500;
+  color: var(--color-primary-600);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
   padding: 0;
-  margin-bottom: 24px;
+  margin-bottom: var(--space-6);
   cursor: pointer;
+  transition: color var(--duration-fast);
 }
 
-.back-button ion-icon {
-  font-size: 20px;
+.back-button:hover:not(:disabled) {
+  color: var(--color-primary-700);
 }
 
+.back-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.back-button :deep(svg) {
+  width: 20px;
+  height: 20px;
+}
+
+/* Title */
 .page-title {
-  font-size: 24px;
-  font-weight: 700;
-  margin: 0 0 8px;
-  color: var(--ion-text-color);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  margin: 0 0 var(--space-2);
+  color: var(--color-neutral-900);
 }
 
 .subtitle {
-  font-size: 14px;
-  color: var(--ion-color-medium);
-  margin: 0 0 32px;
+  font-size: var(--text-sm);
+  color: var(--color-neutral-500);
+  margin: 0 0 var(--space-8);
+  line-height: var(--leading-relaxed);
 }
 
+/* OTP Container */
 .otp-container {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
+}
+
+.otp-input-wrapper {
+  width: 48px;
+  height: 56px;
+  background: var(--color-neutral-50);
+  border: 1.5px solid var(--color-neutral-300);
+  border-radius: var(--radius-lg);
+  transition: all var(--duration-fast) var(--ease-out);
+  overflow: hidden;
+}
+
+.otp-input-wrapper:focus-within {
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px var(--color-primary-100);
+}
+
+.otp-input-wrapper--filled {
+  background: var(--color-primary-50);
+  border-color: var(--color-primary-400);
+}
+
+.otp-input-wrapper--error {
+  background: var(--color-error-50);
+  border-color: var(--color-error-500);
+}
+
+.otp-input-wrapper--error:focus-within {
+  box-shadow: 0 0 0 3px var(--color-error-50);
 }
 
 .otp-input {
-  width: 48px;
-  height: 56px;
-  --background: var(--ion-color-light);
+  width: 100%;
+  height: 100%;
+  --background: transparent;
   --padding-start: 0;
   --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
   text-align: center;
-  font-size: 24px;
-  font-weight: 600;
-  border-radius: 12px;
-}
-
-.otp-input.has-value {
-  --background: rgba(0, 168, 107, 0.1);
-}
-
-.otp-input.has-error {
-  --background: rgba(235, 68, 90, 0.1);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--color-neutral-900);
 }
 
 .otp-input::part(native) {
   text-align: center;
 }
 
+/* Error Text */
 .error-text {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-error-600);
+  margin: 0 0 var(--space-4);
   text-align: center;
-  font-size: 14px;
-  margin-bottom: 16px;
 }
 
-.submit-button {
-  --border-radius: 12px;
-  height: 52px;
-  font-weight: 600;
+.error-text :deep(svg) {
+  width: 16px;
+  height: 16px;
 }
 
+/* Resend Section */
 .resend-section {
   text-align: center;
-  margin-top: 24px;
+  margin-top: var(--space-6);
 }
 
 .resend-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   background: none;
   border: none;
-  color: var(--ion-color-primary);
-  font-size: 14px;
-  font-weight: 600;
+  color: var(--color-primary-600);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
   cursor: pointer;
-  text-decoration: underline;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  transition: all var(--duration-fast);
+}
+
+.resend-button:hover:not(:disabled) {
+  background: var(--color-primary-50);
+  color: var(--color-primary-700);
+}
+
+.resend-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.resend-button :deep(svg) {
+  width: 16px;
+  height: 16px;
 }
 
 .resend-countdown {
-  font-size: 14px;
-  color: var(--ion-color-medium);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-neutral-500);
+  padding: var(--space-2) var(--space-4);
+}
+
+.resend-countdown :deep(svg) {
+  width: 16px;
+  height: 16px;
+}
+
+/* Help Section */
+.help-section {
+  margin-top: auto;
+  padding-top: var(--space-8);
+  text-align: center;
+}
+
+.help-text {
+  font-size: var(--text-xs);
+  color: var(--color-neutral-400);
+  margin: 0;
+  line-height: var(--leading-relaxed);
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .back-button {
+    color: var(--color-primary-400);
+  }
+
+  .back-button:hover:not(:disabled) {
+    color: var(--color-primary-300);
+  }
+
+  .page-title {
+    color: var(--color-neutral-100);
+  }
+
+  .subtitle {
+    color: var(--color-neutral-400);
+  }
+
+  .otp-input-wrapper {
+    background: var(--color-neutral-800);
+    border-color: var(--color-neutral-600);
+  }
+
+  .otp-input-wrapper:focus-within {
+    box-shadow: 0 0 0 3px rgba(0, 168, 107, 0.2);
+  }
+
+  .otp-input-wrapper--filled {
+    background: rgba(0, 168, 107, 0.15);
+    border-color: var(--color-primary-500);
+  }
+
+  .otp-input-wrapper--error {
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  .otp-input {
+    color: var(--color-neutral-100);
+  }
+
+  .resend-button {
+    color: var(--color-primary-400);
+  }
+
+  .resend-button:hover:not(:disabled) {
+    background: rgba(0, 168, 107, 0.1);
+    color: var(--color-primary-300);
+  }
+
+  .resend-countdown {
+    color: var(--color-neutral-500);
+  }
+
+  .help-text {
+    color: var(--color-neutral-500);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .back-button,
+  .otp-input-wrapper,
+  .resend-button {
+    transition: none;
+  }
+}
+
+/* Responsive adjustments for small screens */
+@media (max-width: 360px) {
+  .otp-container {
+    gap: var(--space-1);
+  }
+
+  .otp-input-wrapper {
+    width: 44px;
+    height: 52px;
+  }
+
+  .otp-input {
+    font-size: var(--text-xl);
+  }
 }
 </style>

@@ -25,11 +25,13 @@
     "delete": "Cima",
     "edit": "Hlela",
     "view": "Jonga",
+    "view_all": "Jonga Konke",
     "confirm": "Qinisekisa",
     "yes": "Ewe",
     "no": "Hayi",
     "ok": "Kulungile",
     "offline_mode": "Awuqhagamshelwanga",
+    "offline_message": "Ezinye iifitha zinokubanemikhawulo",
     "pending_sync": "{count} elindele ukuvumelanisa",
     "no_results": "Akukho ziphumo zifunyenweyo",
     "pull_to_refresh": "Tsala ukuze uhlaziye"
@@ -46,12 +48,14 @@
     "otp_title": "Faka Ikhowudi Yokuqinisekisa",
     "otp_subtitle": "Sithumele ikhowudi yeenombolo ezintandathu ku-{phone}",
     "otp_placeholder": "Faka ikhowudi yeenombolo ezintandathu",
+    "otp_help_text": "Awuyifumananga ikhowudi? Jonga ii-SMS zakho okanye ucele entsha.",
     "verify_otp": "Qinisekisa",
     "resend_otp": "Thumela Ikhowudi Kwakhona",
     "resend_in": "Thumela kwakhona kwimizuzwana engu-{seconds}",
     "wrong_number": "Inombolo engalunganga?",
     "logout": "Phuma",
-    "logout_confirm": "Uqinisekile ukuba ufuna ukuphuma?"
+    "logout_confirm": "Phuma?",
+    "logout_message": "Uqinisekile ukuba ufuna ukuphuma kwi-akhawunti yakho?"
   },
   "home": {
     "welcome": "Indlela",
@@ -59,7 +63,15 @@
     "popular_services": "Iinkonzo Ezidumileyo",
     "nearby_providers": "Abahlinzeki Abakufutshane",
     "providers": "abahlinzeki",
-    "view_all": "Jonga Konke"
+    "no_providers": "Akukho bahlinzeki bakufutshane",
+    "no_providers_message": "Asifumananga bahlinzeki kwindawo yakho. Zama ukwandisa ukukhangela kwakho.",
+    "ai_assistant_title": "Ufuna uncedo lokufumana inkonzo?",
+    "ai_assistant_message": "Umncedisi wethu we-AI angakunceda ufumane umhlinzeki wenkonzo ofanelekileyo.",
+    "suggestions": {
+      "plumber": "Fumana umhlinzeki weembombo",
+      "electrician": "Fumana umhlinzeki wombane",
+      "cleaner": "Fumana umcoceki"
+    }
   },
   "services": {
     "title": "Iinkonzo",
@@ -117,6 +129,10 @@
     "booking_confirmed": "Ibhukhingi Iqinisekisiwe!",
     "booking_ref": "Ireferensi: {ref}",
     "provider_notified": "Umhlinzeki wazisiwe",
+    "filter": {
+      "upcoming": "Ezizayo",
+      "past": "Ezidlulileyo"
+    },
     "status": {
       "pending": "Ilindile",
       "accepted": "Yamkelwe",
@@ -135,7 +151,12 @@
     "cancel_reason": "Isizathu sokurhoxisa",
     "empty": {
       "title": "Akukho Bhukhingi Okwangoku",
-      "message": "Imbali yakho yokubhukisha iza kubonakala apha"
+      "message": "Imbali yakho yokubhukisha iza kubonakala apha",
+      "upcoming_title": "Akukho Bhukhingi Ezizayo",
+      "upcoming_message": "Awunayo iibhukhingi ezicwangciselweyo. Khangela iinkonzo ukuze ubhukishe umhlinzeki.",
+      "past_title": "Akukho Bhukhingi Ezidlulileyo",
+      "past_message": "Iibhukhingi zakho ezigqityiweyo nezirhoxisiweyo ziza kubonakala apha.",
+      "browse_services": "Khangela Iinkonzo"
     }
   },
   "review": {
@@ -155,23 +176,29 @@
   },
   "settings": {
     "title": "Useto",
+    "account": "I-akhawunti",
     "profile": "Iprofayile",
     "edit_profile": "Hlela Iprofayile",
     "name": "Igama",
     "email": "I-imeyile",
     "phone": "Umnxeba",
     "language": "Ulwimi",
+    "select_language": "Khetha Ulwimi",
     "notifications": "Izaziso",
     "push_notifications": "Izaziso Zepush",
     "sms_notifications": "Izaziso Ze-SMS",
     "email_notifications": "Izaziso Ze-imeyile",
-    "privacy": "Ubumfihlo",
+    "provider_section": "Umhlinzeki",
+    "switch_to_provider": "Tshintshela Kwimodi Yomhlinzeki",
+    "provider_description": "Lawula iinkonzo zakho nengeniso yakho",
+    "verified_provider": "Umhlinzeki Oqinisekisiweyo",
+    "support": "Inkxaso",
+    "privacy": "Umgaqo-nkqubo Wabucala",
     "terms": "Imigaqo Yenkonzo",
     "help": "Uncedo Nenkxaso",
     "about": "Malunga ne-Indlela",
-    "version": "Inguqulelo {version}",
-    "become_provider": "Yiba Ngumhlinzeki",
-    "switch_to_provider": "Tshintshela Kwimodi Yomhlinzeki"
+    "version": "v{version}",
+    "become_provider": "Yiba Ngumhlinzeki"
   },
   "errors": {
     "network": "Impazamo yenethiwekhi. Nceda ujonge unxibelelwano lwakho.",

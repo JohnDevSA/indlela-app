@@ -56,14 +56,21 @@ const navigate = (path: string) => {
   display: flex;
   flex-direction: column;
   height: 100%;
+  position: relative;
 }
 
 .layout-content {
   flex: 1;
   overflow: auto;
+  padding-bottom: calc(60px + env(safe-area-inset-bottom));
 }
 
 .tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -71,6 +78,7 @@ const navigate = (path: string) => {
   border-top: 1px solid var(--ion-border-color, #e0e0e0);
   padding: 8px 0;
   padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .tab-button {

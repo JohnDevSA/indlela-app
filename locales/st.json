@@ -25,11 +25,13 @@
     "delete": "Hlakola",
     "edit": "Fetola",
     "view": "Sheba",
+    "view_all": "Sheba Tsohle",
     "confirm": "Netefatsa",
     "yes": "Ee",
     "no": "Tjhe",
     "ok": "Ho Lokile",
     "offline_mode": "Ha u hokahanya",
+    "offline_message": "Likarolo tse ling li ka nna tsa ba le meeli",
     "pending_sync": "{count} e emetse ho hokahana",
     "no_results": "Ha ho liphetho tse fumanoeng",
     "pull_to_refresh": "Hula ho nchafatsa"
@@ -46,12 +48,14 @@
     "otp_title": "Kenya Khoutu ea Netefatso",
     "otp_subtitle": "Re romeletse khoutu ea linomoro tse 6 ho {phone}",
     "otp_placeholder": "Kenya khoutu ea linomoro tse 6",
+    "otp_help_text": "Ha ua fumana khoutu? Sheba li-SMS tsa hau kapa kopa e ncha.",
     "verify_otp": "Netefatsa",
     "resend_otp": "Romela Khoutu Hape",
     "resend_in": "Romela hape ka {seconds}s",
     "wrong_number": "Nomoro e fosahetseng?",
     "logout": "Tsoa",
-    "logout_confirm": "Na u na le bonnete ba hore u batla ho tsoa?"
+    "logout_confirm": "Tsoa?",
+    "logout_message": "Na u na le bonnete ba hore u batla ho tsoa ak'haonteng ea hau?"
   },
   "home": {
     "welcome": "Indlela",
@@ -59,7 +63,15 @@
     "popular_services": "Litšebeletso Tse Ratoang",
     "nearby_providers": "Bafani ba Haufi",
     "providers": "bafani",
-    "view_all": "Sheba Tsohle"
+    "no_providers": "Ha ho bafani ba haufi",
+    "no_providers_message": "Ha re a fumana bafani sebakeng sa hau. Leka ho atolosa lipatlisiso tsa hau.",
+    "ai_assistant_title": "U hloka thuso ho fumana tšebeletso?",
+    "ai_assistant_message": "Motlatsi oa rona oa AI a ka u thusa ho fumana mofani oa tšebeletso ea nepahetseng.",
+    "suggestions": {
+      "plumber": "Fumana mofani oa lipompo",
+      "electrician": "Fumana mofani oa motlakase",
+      "cleaner": "Fumana mohlatsoi"
+    }
   },
   "services": {
     "title": "Litšebeletso",
@@ -117,6 +129,10 @@
     "booking_confirmed": "Pukiso e Netefatsoa!",
     "booking_ref": "Ref: {ref}",
     "provider_notified": "Mofani o tsebisitsoe",
+    "filter": {
+      "upcoming": "Tse Tlang",
+      "past": "Tse Fetileng"
+    },
     "status": {
       "pending": "E Emetse",
       "accepted": "E Amoheloa",
@@ -135,7 +151,12 @@
     "cancel_reason": "Lebaka la ho hlakola",
     "empty": {
       "title": "Ha ho na Lipukiso Hajoale",
-      "message": "Nalane ea lipukiso tsa hau e tla hlaha mona"
+      "message": "Nalane ea lipukiso tsa hau e tla hlaha mona",
+      "upcoming_title": "Ha ho na Lipukiso Tse Tlang",
+      "upcoming_message": "Ha u na lipukiso tse hlophisitsoeng. Sheba litšebeletso ho buka mofani.",
+      "past_title": "Ha ho na Lipukiso Tse Fetileng",
+      "past_message": "Lipukiso tsa hau tse phethiloeng le tse hlakotseng li tla hlaha mona.",
+      "browse_services": "Sheba Litšebeletso"
     }
   },
   "review": {
@@ -155,23 +176,29 @@
   },
   "settings": {
     "title": "Litlhophiso",
+    "account": "Ak'haonte",
     "profile": "Profaele",
     "edit_profile": "Fetola Profaele",
     "name": "Lebitso",
     "email": "Imeile",
     "phone": "Mohala",
     "language": "Puo",
+    "select_language": "Khetha Puo",
     "notifications": "Litsebiso",
     "push_notifications": "Litsebiso tsa Push",
     "sms_notifications": "Litsebiso tsa SMS",
     "email_notifications": "Litsebiso tsa Imeile",
-    "privacy": "Lekunutu",
+    "provider_section": "Mofani",
+    "switch_to_provider": "Fetohela ho Mokhoa oa Mofani",
+    "provider_description": "Laola litšebeletso tsa hau le meputso ea hau",
+    "verified_provider": "Mofani ea Netefaditsoeng",
+    "support": "Tšehetso",
+    "privacy": "Leano la Lekunutu",
     "terms": "Melaoana ea Tšebeletso",
     "help": "Thuso le Tshehetso",
     "about": "Ka Indlela",
-    "version": "Mofuta {version}",
-    "become_provider": "E-ba Mofani",
-    "switch_to_provider": "Fetohela ho Mokhoa oa Mofani"
+    "version": "v{version}",
+    "become_provider": "E-ba Mofani"
   },
   "errors": {
     "network": "Phoso ea marang-rang. Ka kopo hlahloba khokahano ea hau.",

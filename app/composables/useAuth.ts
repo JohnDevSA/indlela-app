@@ -1,13 +1,14 @@
 import type { User, AuthResponse } from '~/types'
+import { useAuthStore, mockUsers, type MockUserType } from '~/stores/auth'
 
 /**
  * Composable for authentication operations
- * Handles OTP-based phone authentication
+ * In dev mode, uses mock data without API calls
+ * In production, handles OTP-based phone authentication
  */
 export function useAuth() {
-  const { post, get, patch, getErrorMessage, isApiError } = useApi()
   const authStore = useAuthStore()
-  const { clearOfflineData } = useOffline()
+  const isDev = process.dev
 
   // State
   const isLoading = ref(false)
@@ -25,7 +26,7 @@ export function useAuth() {
    */
   const normalizePhone = (phone: string): string => {
     // Remove all non-digit characters except +
-    const cleaned = phone.replace(/[^\d+]/g, '')
+    let cleaned = phone.replace(/[^\d+]/g, '')
 
     // Convert 0XX to +27XX
     if (cleaned.startsWith('0')) {
@@ -34,7 +35,12 @@ export function useAuth() {
 
     // Add + if it starts with 27
     if (cleaned.startsWith('27')) {
-      return '+' + cleaned
+      cleaned = '+' + cleaned
+    }
+
+    // Handle edge case: +270XX (country code + local format with leading 0)
+    if (cleaned.startsWith('+270')) {
+      return '+27' + cleaned.substring(4)
     }
 
     return cleaned
@@ -51,6 +57,7 @@ export function useAuth() {
 
   /**
    * Request OTP for phone number
+   * In dev mode: simulates OTP sent
    */
   const requestOtp = async (phone: string): Promise<boolean> => {
     error.value = null
@@ -64,17 +71,23 @@ export function useAuth() {
         return false
       }
 
+      if (isDev) {
+        // Dev mode: simulate delay and success
+        await new Promise(resolve => setTimeout(resolve, 500))
+        otpSent.value = true
+        otpPhone.value = normalized
+        return true
+      }
+
+      // Production: make API call
+      const { post } = useApi()
       await post('/auth/request-otp', { phone: normalized })
 
       otpSent.value = true
       otpPhone.value = normalized
       return true
     } catch (e) {
-      if (isApiError(e) && e.error.code === 'RATE_LIMITED') {
-        error.value = 'Too many OTP requests. Please wait a few minutes.'
-      } else {
-        error.value = getErrorMessage(e)
-      }
+      error.value = 'Failed to send OTP. Please try again.'
       return false
     } finally {
       isLoading.value = false
@@ -83,6 +96,7 @@ export function useAuth() {
 
   /**
    * Verify OTP and authenticate
+   * In dev mode: any 6-digit code works, logs in as customer
    */
   const verifyOtp = async (otp: string): Promise<boolean> => {
     error.value = null
@@ -95,6 +109,36 @@ export function useAuth() {
     }
 
     try {
+      if (isDev) {
+        // Dev mode: simulate delay and login
+        await new Promise(resolve => setTimeout(resolve, 500))
+
+        // Any 6-digit OTP works in dev mode
+        if (otp.length === 6) {
+          // Determine user type based on phone number
+          let userType: MockUserType = 'customer'
+
+          if (otpPhone.value?.includes('831')) {
+            userType = 'provider'
+          } else if (otpPhone.value?.includes('801')) {
+            userType = 'admin'
+          }
+
+          authStore.devLogin(userType)
+
+          // Reset OTP state
+          otpSent.value = false
+          otpPhone.value = null
+
+          return true
+        } else {
+          error.value = 'Invalid OTP'
+          return false
+        }
+      }
+
+      // Production: make API call
+      const { post } = useApi()
       const response = await post<{ data: AuthResponse }>('/auth/verify-otp', {
         phone: otpPhone.value,
         otp,
@@ -108,11 +152,7 @@ export function useAuth() {
 
       return true
     } catch (e) {
-      if (isApiError(e) && e.error.code === 'INVALID_OTP') {
-        error.value = 'Invalid or expired OTP. Please try again.'
-      } else {
-        error.value = getErrorMessage(e)
-      }
+      error.value = 'Invalid or expired OTP. Please try again.'
       return false
     } finally {
       isLoading.value = false
@@ -132,20 +172,33 @@ export function useAuth() {
   }
 
   /**
+   * Dev login - directly login as a specific user type
+   */
+  const devLoginAs = (userType: MockUserType): User => {
+    return authStore.devLogin(userType) as User
+  }
+
+  /**
    * Fetch current user profile
+   * In dev mode: returns current mock user
    */
   const fetchUser = async (): Promise<User | null> => {
     if (!authStore.isAuthenticated) return null
+
+    if (isDev) {
+      return authStore.user
+    }
 
     isLoading.value = true
     error.value = null
 
     try {
+      const { get } = useApi()
       const response = await get<{ data: User }>('/auth/me')
       authStore.setUser(response.data)
       return response.data
     } catch (e) {
-      error.value = getErrorMessage(e)
+      error.value = 'Failed to fetch user profile'
       return null
     } finally {
       isLoading.value = false
@@ -154,17 +207,27 @@ export function useAuth() {
 
   /**
    * Update user profile
+   * In dev mode: updates local state only
    */
   const updateProfile = async (data: Partial<User>): Promise<boolean> => {
     isLoading.value = true
     error.value = null
 
     try {
+      if (isDev) {
+        await new Promise(resolve => setTimeout(resolve, 300))
+        if (authStore.user) {
+          authStore.setUser({ ...authStore.user, ...data } as User)
+        }
+        return true
+      }
+
+      const { patch } = useApi()
       const response = await patch<{ data: User }>('/auth/me', data)
       authStore.setUser(response.data)
       return true
     } catch (e) {
-      error.value = getErrorMessage(e)
+      error.value = 'Failed to update profile'
       return false
     } finally {
       isLoading.value = false
@@ -185,19 +248,15 @@ export function useAuth() {
     isLoading.value = true
 
     try {
-      // Call logout endpoint to revoke token
-      if (authStore.isAuthenticated) {
+      if (!isDev && authStore.isAuthenticated) {
+        const { post } = useApi()
         await post('/auth/logout')
       }
     } catch {
-      // Ignore logout errors - we're logging out anyway
+      // Ignore logout errors
     } finally {
-      // Clear local state
       authStore.logout()
-      await clearOfflineData()
       isLoading.value = false
-
-      // Redirect to login
       navigateTo('/auth/login')
     }
   }
@@ -235,6 +294,7 @@ export function useAuth() {
     requestOtp,
     verifyOtp,
     resendOtp,
+    devLoginAs,
     fetchUser,
     updateProfile,
     updateLocale,

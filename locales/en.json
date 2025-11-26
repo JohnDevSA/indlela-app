@@ -25,11 +25,13 @@
     "delete": "Delete",
     "edit": "Edit",
     "view": "View",
+    "view_all": "View All",
     "confirm": "Confirm",
     "yes": "Yes",
     "no": "No",
     "ok": "OK",
     "offline_mode": "You're offline",
+    "offline_message": "Some features may be limited",
     "pending_sync": "{count} pending sync | {count} pending syncs",
     "no_results": "No results found",
     "pull_to_refresh": "Pull to refresh"
@@ -46,12 +48,14 @@
     "otp_title": "Enter Verification Code",
     "otp_subtitle": "We sent a 6-digit code to {phone}",
     "otp_placeholder": "Enter 6-digit code",
+    "otp_help_text": "Didn't receive the code? Check your SMS or request a new one.",
     "verify_otp": "Verify",
     "resend_otp": "Resend Code",
     "resend_in": "Resend in {seconds}s",
     "wrong_number": "Wrong number?",
     "logout": "Log Out",
-    "logout_confirm": "Are you sure you want to log out?"
+    "logout_confirm": "Log Out?",
+    "logout_message": "Are you sure you want to log out of your account?"
   },
   "home": {
     "welcome": "Indlela",
@@ -59,7 +63,15 @@
     "popular_services": "Popular Services",
     "nearby_providers": "Nearby Providers",
     "providers": "providers",
-    "view_all": "View All"
+    "no_providers": "No providers nearby",
+    "no_providers_message": "We couldn't find any providers in your area. Try expanding your search.",
+    "ai_assistant_title": "Need help finding a service?",
+    "ai_assistant_message": "Our AI assistant can help you find the right service provider for your needs.",
+    "suggestions": {
+      "plumber": "Find a plumber",
+      "electrician": "Find an electrician",
+      "cleaner": "Find a cleaner"
+    }
   },
   "services": {
     "title": "Services",
@@ -117,6 +129,10 @@
     "booking_confirmed": "Booking Confirmed!",
     "booking_ref": "Reference: {ref}",
     "provider_notified": "The provider has been notified",
+    "filter": {
+      "upcoming": "Upcoming",
+      "past": "Past"
+    },
     "status": {
       "pending": "Pending",
       "accepted": "Accepted",
@@ -135,7 +151,12 @@
     "cancel_reason": "Reason for cancellation",
     "empty": {
       "title": "No Bookings Yet",
-      "message": "Your booking history will appear here"
+      "message": "Your booking history will appear here",
+      "upcoming_title": "No Upcoming Bookings",
+      "upcoming_message": "You don't have any scheduled bookings. Browse services to book a provider.",
+      "past_title": "No Past Bookings",
+      "past_message": "Your completed and cancelled bookings will appear here.",
+      "browse_services": "Browse Services"
     }
   },
   "review": {
@@ -155,23 +176,29 @@
   },
   "settings": {
     "title": "Settings",
+    "account": "Account",
     "profile": "Profile",
     "edit_profile": "Edit Profile",
     "name": "Name",
     "email": "Email",
     "phone": "Phone",
     "language": "Language",
+    "select_language": "Select Language",
     "notifications": "Notifications",
     "push_notifications": "Push Notifications",
     "sms_notifications": "SMS Notifications",
     "email_notifications": "Email Notifications",
-    "privacy": "Privacy",
+    "provider_section": "Provider",
+    "switch_to_provider": "Switch to Provider Mode",
+    "provider_description": "Manage your services and earnings",
+    "verified_provider": "Verified Provider",
+    "support": "Support",
+    "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "help": "Help & Support",
     "about": "About Indlela",
-    "version": "Version {version}",
-    "become_provider": "Become a Provider",
-    "switch_to_provider": "Switch to Provider Mode"
+    "version": "v{version}",
+    "become_provider": "Become a Provider"
   },
   "errors": {
     "network": "Network error. Please check your connection.",

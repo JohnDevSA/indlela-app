@@ -16,6 +16,8 @@ export interface User {
   avatar?: string
   phoneVerifiedAt?: string
   emailVerifiedAt?: string
+  onboardingCompleted?: boolean
+  providerId?: string // If user is a provider
   createdAt: string
   updatedAt: string
 }

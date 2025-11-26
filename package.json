@@ -12,9 +12,14 @@
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "typecheck": "nuxt typecheck",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "android": "pnpm run build && npx cap sync android && npx cap open android",
     "ios": "pnpm run build && npx cap sync ios && npx cap open ios",
-    "sync": "npx cap sync"
+    "sync": "npx cap sync",
+    "ui:icons": "echo 'Icons available via @nuxt/icon - see docs/ui/icons.md'"
   },
   "dependencies": {
     "@capacitor/android": "^6.1.0",
@@ -30,6 +35,8 @@
     "@ionic/vue-router": "^8.3.0",
     "@nuxtjs/i18n": "^9.0.0",
     "@pinia/nuxt": "^0.5.1",
+    "@vueuse/core": "^11.0.0",
+    "@vueuse/nuxt": "^11.0.0",
     "dexie": "^4.0.8",
     "nuxt": "^4.0.0",
     "pinia": "^2.2.0",
@@ -39,9 +46,17 @@
   "devDependencies": {
     "@capacitor/cli": "^6.1.0",
     "@nuxt/eslint": "^0.5.0",
+    "@nuxt/icon": "^1.0.0",
+    "@nuxt/image": "^1.8.0",
+    "@pinia/testing": "^1.0.3",
     "@types/node": "^20.14.0",
+    "@vitest/ui": "^4.0.14",
+    "@vue/test-utils": "^2.4.6",
     "eslint": "^9.7.0",
+    "fake-indexeddb": "^6.2.5",
+    "happy-dom": "^20.0.10",
     "typescript": "^5.5.0",
+    "vitest": "^4.0.14",
     "vue-tsc": "^2.0.0"
   },
   "packageManager": "pnpm@9.0.0"

@@ -16,7 +16,35 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxtjs/i18n',
     '@nuxt/eslint',
+    '@nuxt/icon',
+    '@nuxt/image',
+    '@vueuse/nuxt',
   ],
+
+  // Icon configuration - access to 200k+ icons from Iconify
+  icon: {
+    // Use remote fetching for icons (works offline after first load due to SW caching)
+    serverBundle: 'remote',
+    // Scan components for icon usage and bundle automatically
+    clientBundle: {
+      scan: true,
+    },
+    // Customize icon component defaults
+    class: 'nuxt-icon',
+    size: '1.2em',
+  },
+
+  // Image optimization
+  image: {
+    quality: 80,
+    format: ['webp', 'avif', 'jpeg'],
+    screens: {
+      xs: 320,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+    },
+  },
 
   // TypeScript - disable strict checks for faster builds
   typescript: {

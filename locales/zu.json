@@ -25,11 +25,13 @@
     "delete": "Susa",
     "edit": "Hlela",
     "view": "Buka",
+    "view_all": "Buka Konke",
     "confirm": "Qinisekisa",
     "yes": "Yebo",
     "no": "Cha",
     "ok": "Kulungile",
     "offline_mode": "Awuxhunyiwe ku-inthanethi",
+    "offline_message": "Ezinye izici zingase zibe nemikhawulo",
     "pending_sync": "{count} olindele ukuvumelanisa",
     "no_results": "Ayikho imiphumela etholakele",
     "pull_to_refresh": "Donsa ukuze uvuselele"
@@ -46,12 +48,14 @@
     "otp_title": "Faka Ikhodi Yokuqinisekisa",
     "otp_subtitle": "Sithumele ikhodi yezinombolo eziyisi-6 ku-{phone}",
     "otp_placeholder": "Faka ikhodi yezinombolo eziyisi-6",
+    "otp_help_text": "Awuyitholanga ikhodi? Bheka ama-SMS akho noma ucele entsha.",
     "verify_otp": "Qinisekisa",
     "resend_otp": "Thumela Ikhodi Futhi",
     "resend_in": "Thumela futhi ngemizuzwana engu-{seconds}",
     "wrong_number": "Inombolo engalungile?",
     "logout": "Phuma",
-    "logout_confirm": "Uqinisekile ukuthi ufuna ukuphuma?"
+    "logout_confirm": "Phuma?",
+    "logout_message": "Uqinisekile ukuthi ufuna ukuphuma ku-akhawunti yakho?"
   },
   "home": {
     "welcome": "Indlela",
@@ -59,7 +63,15 @@
     "popular_services": "Izinsizakalo Ezithandwayo",
     "nearby_providers": "Abahlinzeki Abseduze",
     "providers": "abahlinzeki",
-    "view_all": "Buka Konke"
+    "no_providers": "Abahlinzeki abatholakali eduze",
+    "no_providers_message": "Asitholanga abahlinzeki endaweni yakho. Zama ukwandisa ukusesha kwakho.",
+    "ai_assistant_title": "Udinga usizo lokuthola insizakalo?",
+    "ai_assistant_message": "Umsizi wethu we-AI angakusiza uthole umhlinzeki wensizakalo ofanele izidingo zakho.",
+    "suggestions": {
+      "plumber": "Thola umhlinzeki wamapayipi",
+      "electrician": "Thola umhlinzeki wogesi",
+      "cleaner": "Thola umhlanzi"
+    }
   },
   "services": {
     "title": "Izinsizakalo",
@@ -117,6 +129,10 @@
     "booking_confirmed": "Ukubhukha Kuqinisekisiwe!",
     "booking_ref": "Inombolo Yereferensi: {ref}",
     "provider_notified": "Umhlinzeki wazisiwe",
+    "filter": {
+      "upcoming": "Ezizayo",
+      "past": "Ezedlule"
+    },
     "status": {
       "pending": "Kulindile",
       "accepted": "Kwamukelwe",
@@ -135,7 +151,12 @@
     "cancel_reason": "Isizathu sokukhansela",
     "empty": {
       "title": "Akukho Ukubhukha Okwamanje",
-      "message": "Umlando wakho wokubhukha uzovela lapha"
+      "message": "Umlando wakho wokubhukha uzovela lapha",
+      "upcoming_title": "Akukho Ukubhukha Okuzayo",
+      "upcoming_message": "Awunakho ukubhukha okuhleliwe. Bheka izinsizakalo ukuze ubhukhe umhlinzeki.",
+      "past_title": "Akukho Ukubhukha Okudlule",
+      "past_message": "Ukubhukha kwakho okuqediwe nokukhanseliwe kuzovela lapha.",
+      "browse_services": "Bheka Izinsizakalo"
     }
   },
   "review": {
@@ -155,23 +176,29 @@
   },
   "settings": {
     "title": "Izilungiselelo",
+    "account": "I-akhawunti",
     "profile": "Iphrofayela",
     "edit_profile": "Hlela Iphrofayela",
     "name": "Igama",
     "email": "I-imeyili",
     "phone": "Ucingo",
     "language": "Ulimi",
+    "select_language": "Khetha Ulimi",
     "notifications": "Izaziso",
     "push_notifications": "Izaziso ze-Push",
     "sms_notifications": "Izaziso ze-SMS",
     "email_notifications": "Izaziso ze-Imeyili",
-    "privacy": "Ubumfihlo",
+    "provider_section": "Umhlinzeki",
+    "switch_to_provider": "Shintshela Kumodi Yomhlinzeki",
+    "provider_description": "Phatha izinsizakalo zakho nengeniso yakho",
+    "verified_provider": "Umhlinzeki Oqinisekisiwe",
+    "support": "Ukusekela",
+    "privacy": "Inqubomgomo Yobumfihlo",
     "terms": "Imigomo Yesevisi",
     "help": "Usizo Nokusekela",
     "about": "Mayelana ne-Indlela",
-    "version": "Inguqulo {version}",
-    "become_provider": "Yiba Umhlinzeki",
-    "switch_to_provider": "Shintshela Kumodi Yomhlinzeki"
+    "version": "v{version}",
+    "become_provider": "Yiba Umhlinzeki"
   },
   "errors": {
     "network": "Iphutha lenethiwekhi. Sicela uhlole ukuxhumana kwakho.",

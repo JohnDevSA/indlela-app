@@ -190,6 +190,14 @@
   --touch-target-lg: 56px;  /* For primary CTAs */
 
   /* ========================================================================
+     LAYOUT DIMENSIONS
+     Fixed heights for navigation and layout components
+     ======================================================================== */
+
+  --tab-bar-height: 60px;   /* Bottom navigation tab bar */
+  --header-height: 56px;    /* Top header/toolbar */
+
+  /* ========================================================================
      CONTAINER WIDTHS
      ======================================================================== */
 

@@ -328,7 +328,7 @@ export const popularServices = [
 // ============================================
 // Nearby providers for home screen
 // ============================================
-export const nearbyProviders = mockProviders.slice(0, 4).map((p, i) => ({
+export const nearbyProviders = mockProviders.slice(0, 9).map((p, i) => ({
   id: p.id,
   name: p.user?.name || 'Provider',
   service: p.services?.[0]?.service?.name || 'Service',

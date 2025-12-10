@@ -20,7 +20,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
-const router = useRouter()
+const { goBack, router } = useAppNavigation()
 const route = useRoute()
 
 // State
@@ -76,7 +76,7 @@ const goToBookings = () => {
     <IonHeader>
       <IonToolbar color="primary">
         <IonButtons slot="start">
-          <IonBackButton :default-href="`/bookings/${route.params.id}`" />
+          <IonBackButton :default-href="`/bookings/${route.params.id}`" @click="goBack(`/bookings/${route.params.id}`, $event)" />
         </IonButtons>
         <IonTitle>{{ t('review.title') }}</IonTitle>
       </IonToolbar>

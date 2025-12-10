@@ -31,9 +31,15 @@ const navigate = (path: string) => {
 
 <template>
   <div class="layout-container">
+    <!-- PWA Update Prompt (top) -->
+    <PWAUpdatePrompt />
+
     <main class="layout-content">
       <slot />
     </main>
+
+    <!-- PWA Install Prompt (above tabs) -->
+    <PWAInstallPrompt />
 
     <!-- Custom tab bar for customer navigation -->
     <nav v-if="showTabs" class="tab-bar">
@@ -62,7 +68,8 @@ const navigate = (path: string) => {
 .layout-content {
   flex: 1;
   overflow: auto;
-  padding-bottom: calc(60px + env(safe-area-inset-bottom));
+  /* Account for fixed tab bar at bottom */
+  padding-bottom: calc(var(--tab-bar-height, 60px) + env(safe-area-inset-bottom));
 }
 
 .tab-bar {

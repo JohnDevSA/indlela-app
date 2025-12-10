@@ -9,11 +9,17 @@ const isOnline = ref(true)
 // Show dev tools only in development
 const isDev = process.dev
 
-// Check online status
-onMounted(() => {
+// Initialize status bar
+const { initStatusBar } = useStatusBar()
+
+// Check online status and initialize native features
+onMounted(async () => {
   isOnline.value = navigator.onLine
   window.addEventListener('online', () => isOnline.value = true)
   window.addEventListener('offline', () => isOnline.value = false)
+
+  // Initialize status bar on native platforms
+  await initStatusBar()
 })
 </script>
 

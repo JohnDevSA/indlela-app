@@ -433,6 +433,8 @@ onMounted(() => {
 
 .content-list {
   padding: 0 8px;
+  /* Add bottom padding for tab bar + safe area so last item is visible */
+  padding-bottom: calc(var(--tab-bar-height, 60px) + env(safe-area-inset-bottom) + var(--space-4));
 }
 
 .service-icon,

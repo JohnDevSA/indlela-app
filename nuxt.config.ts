@@ -19,7 +19,176 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     '@nuxt/image',
     '@vueuse/nuxt',
+    '@vite-pwa/nuxt',
   ],
+
+  // PWA Configuration
+  pwa: {
+    registerType: 'autoUpdate',
+    manifest: {
+      name: 'Indlela - The Way',
+      short_name: 'Indlela',
+      description: 'Connect with trusted service providers in your community',
+      theme_color: '#00A86B',
+      background_color: '#ffffff',
+      display: 'standalone',
+      orientation: 'portrait',
+      scope: '/',
+      start_url: '/',
+      lang: 'en',
+      categories: ['lifestyle', 'business', 'utilities'],
+      icons: [
+        {
+          src: '/icons/pwa-64x64.svg',
+          sizes: '64x64',
+          type: 'image/svg+xml',
+        },
+        {
+          src: '/icons/pwa-192x192.svg',
+          sizes: '192x192',
+          type: 'image/svg+xml',
+        },
+        {
+          src: '/icons/pwa-512x512.svg',
+          sizes: '512x512',
+          type: 'image/svg+xml',
+        },
+        {
+          src: '/icons/pwa-512x512.svg',
+          sizes: 'any',
+          type: 'image/svg+xml',
+          purpose: 'any',
+        },
+        {
+          src: '/icons/maskable-icon-512x512.svg',
+          sizes: '512x512',
+          type: 'image/svg+xml',
+          purpose: 'maskable',
+        },
+      ],
+      screenshots: [
+        {
+          src: '/screenshots/home.png',
+          sizes: '390x844',
+          type: 'image/png',
+          form_factor: 'narrow',
+          label: 'Home Screen',
+        },
+      ],
+    },
+    workbox: {
+      // Precache all static assets
+      globPatterns: ['**/*.{js,css,html,png,jpg,jpeg,svg,webp,woff,woff2,ico}'],
+
+      // Runtime caching strategies
+      runtimeCaching: [
+        // API calls - Network first with cache fallback
+        {
+          urlPattern: /^https?:\/\/.*\/api\/v1\/.*/i,
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'api-cache',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 60 * 30, // 30 minutes
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+            networkTimeoutSeconds: 10,
+          },
+        },
+        // Service categories - Cache first (rarely changes)
+        {
+          urlPattern: /^https?:\/\/.*\/api\/v1\/services\/categories.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'categories-cache',
+            expiration: {
+              maxEntries: 10,
+              maxAgeSeconds: 60 * 60 * 24, // 24 hours
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+        // Provider images - Cache first with long expiry
+        {
+          urlPattern: /^https?:\/\/.*\.(png|jpg|jpeg|webp|avif)$/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'image-cache',
+            expiration: {
+              maxEntries: 200,
+              maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+        // Google Fonts stylesheets
+        {
+          urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'google-fonts-stylesheets',
+            expiration: {
+              maxEntries: 10,
+              maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+            },
+          },
+        },
+        // Google Fonts webfont files
+        {
+          urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'google-fonts-webfonts',
+            expiration: {
+              maxEntries: 30,
+              maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+        // Iconify icons (used by @nuxt/icon)
+        {
+          urlPattern: /^https:\/\/api\.iconify\.design\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'iconify-cache',
+            expiration: {
+              maxEntries: 500,
+              maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+      ],
+      // Skip waiting and claim clients immediately
+      skipWaiting: true,
+      clientsClaim: true,
+      // Clean up old caches
+      cleanupOutdatedCaches: true,
+    },
+    // PWA client options
+    client: {
+      installPrompt: true,
+      periodicSyncForUpdates: 3600, // Check for updates every hour
+    },
+    // Dev options - enable in development for testing
+    devOptions: {
+      enabled: true,
+      suppressWarnings: true,
+      type: 'module',
+    },
+  },
 
   // Icon configuration - access to 200k+ icons from Iconify
   icon: {
@@ -51,6 +220,14 @@ export default defineNuxtConfig({
     strict: false,
     typeCheck: false,
   },
+
+  // Components auto-import configuration
+  components: [
+    {
+      path: '~/components',
+      pathPrefix: false, // Don't prefix component names with folder path
+    },
+  ],
 
   // Pinia configuration
   pinia: {
@@ -95,13 +272,17 @@ export default defineNuxtConfig({
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
         { name: 'description', content: 'Connect with trusted service providers in your community' },
+        // Status bar color for PWA - matches primary green
         { name: 'theme-color', content: '#00A86B' },
+        // iOS specific meta tags
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
-        { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
+        // Additional PWA color hints
+        { name: 'msapplication-TileColor', content: '#00A86B' },
       ],
       link: [
-        { rel: 'icon', type: 'image/png', href: '/icons/favicon.png' },
-        { rel: 'apple-touch-icon', href: '/icons/apple-touch-icon.png' },
+        { rel: 'icon', type: 'image/svg+xml', href: '/icons/favicon.svg' },
+        { rel: 'apple-touch-icon', href: '/icons/apple-touch-icon.svg' },
       ],
     },
   },

@@ -27,7 +27,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
-const router = useRouter()
+const { goBack, router } = useAppNavigation()
 const route = useRoute()
 
 // State
@@ -40,6 +40,8 @@ const selectedServiceId = ref<string | null>(null)
 const selectedDate = ref<string | null>(null)
 const selectedTime = ref<string | null>(null)
 const notes = ref('')
+
+// Modal state
 const showDatePicker = ref(false)
 const showTimePicker = ref(false)
 
@@ -123,8 +125,8 @@ const goHome = () => {
   router.push('/')
 }
 
-// Get min date (today)
-const minDate = new Date().toISOString()
+// Get min date (today) - format as YYYY-MM-DD for IonDatetime
+const minDate = new Date().toISOString().split('T')[0]
 </script>
 
 <template>
@@ -132,7 +134,7 @@ const minDate = new Date().toISOString()
     <IonHeader>
       <IonToolbar color="primary">
         <IonButtons slot="start">
-          <IonBackButton :default-href="`/providers/${route.params.providerId}`" />
+          <IonBackButton :default-href="`/providers/${route.params.providerId}`" @click="goBack(`/providers/${route.params.providerId}`, $event)" />
         </IonButtons>
         <IonTitle>{{ t('booking.new_booking') }}</IonTitle>
       </IonToolbar>
@@ -154,14 +156,14 @@ const minDate = new Date().toISOString()
           <p class="total">Total: R{{ totalAmount }}</p>
         </div>
 
-        <div class="success-actions">
+        <PageActions>
           <IonButton expand="block" @click="goToBookings">
             View Bookings
           </IonButton>
           <IonButton expand="block" fill="outline" @click="goHome">
             Back to Home
           </IonButton>
-        </div>
+        </PageActions>
       </div>
 
       <!-- Booking Form -->
@@ -197,7 +199,7 @@ const minDate = new Date().toISOString()
         <!-- Date Selection -->
         <div class="section">
           <h3 class="section-title">{{ t('booking.select_date') }}</h3>
-          <IonItem button @click="showDatePicker = true" detail>
+          <IonItem button detail @click="showDatePicker = true">
             <IonIcon :icon="calendar" slot="start" color="primary" />
             <IonLabel>
               <span v-if="formattedDate">{{ formattedDate }}</span>
@@ -209,7 +211,7 @@ const minDate = new Date().toISOString()
         <!-- Time Selection -->
         <div class="section">
           <h3 class="section-title">{{ t('booking.select_time') }}</h3>
-          <IonItem button @click="showTimePicker = true" detail>
+          <IonItem button detail @click="showTimePicker = true">
             <IonIcon :icon="time" slot="start" color="primary" />
             <IonLabel>
               <span v-if="formattedTime">{{ formattedTime }}</span>
@@ -249,7 +251,7 @@ const minDate = new Date().toISOString()
         </div>
 
         <!-- Submit Button -->
-        <div class="submit-section">
+        <PageActions>
           <IonButton
             expand="block"
             size="large"
@@ -259,7 +261,7 @@ const minDate = new Date().toISOString()
             <IonSpinner v-if="isSubmitting" name="crescent" />
             <span v-else>{{ t('booking.confirm_booking') }}</span>
           </IonButton>
-        </div>
+        </PageActions>
       </template>
 
       <!-- Date Picker Modal -->
@@ -272,8 +274,10 @@ const minDate = new Date().toISOString()
             </IonButtons>
           </IonToolbar>
         </IonHeader>
-        <IonContent>
+        <IonContent class="datetime-content">
           <IonDatetime
+            id="date-picker"
+            class="calendar-datetime"
             presentation="date"
             :min="minDate"
             :value="selectedDate || undefined"
@@ -401,17 +405,6 @@ const minDate = new Date().toISOString()
   color: var(--ion-color-primary);
 }
 
-.submit-section {
-  padding: 24px 16px;
-  padding-bottom: calc(24px + env(safe-area-inset-bottom));
-}
-
-.submit-section ion-button {
-  --border-radius: 12px;
-  height: 52px;
-  font-weight: 600;
-}
-
 /* Success State */
 .success-state {
   display: flex;
@@ -457,10 +450,107 @@ const minDate = new Date().toISOString()
   margin-top: 16px;
 }
 
-.success-actions {
-  width: 100%;
+/* Date/Time picker modal styles */
+.datetime-modal-content {
+  --padding-top: 16px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+}
+
+.datetime-header {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ion-border-color);
+  margin-bottom: 16px;
+}
+
+.datetime-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Calendar datetime styling */
+.calendar-datetime {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  --background: #ffffff;
+}
+
+/* Force calendar day visibility - pierce shadow DOM */
+.datetime-content :deep(ion-datetime) {
+  --background: #ffffff;
+}
+
+.datetime-content :deep(ion-datetime)::part(calendar-day) {
+  color: #000000;
+}
+
+.datetime-content :deep(ion-datetime)::part(calendar-day today) {
+  color: var(--ion-color-primary);
+  font-weight: 600;
+}
+
+.datetime-content :deep(ion-datetime)::part(calendar-day active) {
+  background: var(--ion-color-primary);
+  color: #ffffff;
+}
+
+.datetime-content :deep(ion-datetime)::part(calendar-day disabled) {
+  color: #cccccc;
+}
+
+/* Target calendar body directly */
+.datetime-content :deep(.calendar-body),
+.datetime-content :deep(.calendar-month-grid) {
+  color: #000000;
+}
+
+.datetime-content :deep(button.calendar-day) {
+  color: #000000 !important;
+}
+</style>
+
+<style>
+/* Global (non-scoped) styles for IonDatetime Shadow DOM */
+ion-datetime {
+  --background: #ffffff;
+  --background-rgb: 255, 255, 255;
+}
+
+ion-datetime::part(calendar-day) {
+  color: #1f2937 !important;
+  font-size: 14px;
+}
+
+ion-datetime::part(calendar-day today) {
+  color: var(--ion-color-primary, #00A86B) !important;
+  font-weight: 600;
+}
+
+ion-datetime::part(calendar-day active) {
+  background: var(--ion-color-primary, #00A86B) !important;
+  color: #ffffff !important;
+}
+
+ion-datetime::part(calendar-day disabled) {
+  color: #d1d5db !important;
+  opacity: 0.5;
+}
+
+/* Ensure month grid is visible */
+ion-datetime::part(month-year-button) {
+  color: #1f2937;
+}
+
+ion-datetime::part(wheel-item) {
+  color: #1f2937;
+}
+
+ion-datetime::part(wheel-item active) {
+  color: var(--ion-color-primary, #00A86B);
 }
 </style>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <!-- iOS requires square icons with no transparency -->
+  <rect width="180" height="180" fill="#00A86B" rx="0"/>
+  <path d="M54 126 L90 54 L126 126" stroke="white" stroke-width="10.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M63 99 L117 99" stroke="white" stroke-width="7.2" stroke-linecap="round"/>
+  <circle cx="90" cy="72" r="9" fill="white"/>
+</svg>

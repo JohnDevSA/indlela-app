@@ -24,7 +24,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
-const router = useRouter()
+const { goBack, router } = useAppNavigation()
 const route = useRoute()
 
 // State
@@ -125,7 +125,7 @@ const cancelSheetButtons = [
     <IonHeader>
       <IonToolbar color="primary">
         <IonButtons slot="start">
-          <IonBackButton default-href="/bookings" />
+          <IonBackButton default-href="/bookings" @click="goBack('/bookings', $event)" />
         </IonButtons>
         <IonTitle>{{ t('booking.title') }}</IonTitle>
       </IonToolbar>
@@ -223,7 +223,7 @@ const cancelSheetButtons = [
         </div>
 
         <!-- Actions -->
-        <div class="actions-section">
+        <PageActions>
           <IonButton expand="block" fill="outline" @click="contactProvider">
             <IonIcon :icon="call" slot="start" />
             {{ t('booking.actions.contact_provider') }}
@@ -238,7 +238,7 @@ const cancelSheetButtons = [
             <IonIcon :icon="close" slot="start" />
             {{ t('booking.actions.cancel') }}
           </IonButton>
-        </div>
+        </PageActions>
       </template>
 
       <!-- Not Found -->
@@ -391,14 +391,6 @@ const cancelSheetButtons = [
   padding-top: 12px;
   border-top: 2px solid var(--ion-border-color);
   border-bottom: none;
-}
-
-.actions-section {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding-bottom: calc(32px + env(safe-area-inset-bottom));
 }
 
 .empty-state {

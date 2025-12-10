@@ -237,7 +237,7 @@ onMounted(() => {
 
 /* AI Prompt section */
 .ai-prompt-section {
-  padding-bottom: var(--space-8);
+  padding-bottom: calc(var(--tab-bar-height, 60px) + env(safe-area-inset-bottom) + var(--space-4));;
 }
 
 .ai-prompt-card {

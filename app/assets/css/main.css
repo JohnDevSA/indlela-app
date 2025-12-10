@@ -96,6 +96,27 @@
 
   /* Typography tokens to Ionic */
   --ion-font-family: var(--font-sans);
+
+  /* Color steps for light mode - required by IonDatetime and other components */
+  --ion-color-step-50: #f2f2f2;
+  --ion-color-step-100: #e6e6e6;
+  --ion-color-step-150: #d9d9d9;
+  --ion-color-step-200: #cccccc;
+  --ion-color-step-250: #bfbfbf;
+  --ion-color-step-300: #b3b3b3;
+  --ion-color-step-350: #a6a6a6;
+  --ion-color-step-400: #999999;
+  --ion-color-step-450: #8c8c8c;
+  --ion-color-step-500: #808080;
+  --ion-color-step-550: #737373;
+  --ion-color-step-600: #666666;
+  --ion-color-step-650: #595959;
+  --ion-color-step-700: #4d4d4d;
+  --ion-color-step-750: #404040;
+  --ion-color-step-800: #333333;
+  --ion-color-step-850: #262626;
+  --ion-color-step-900: #191919;
+  --ion-color-step-950: #0d0d0d;
 }
 
 /* Dark theme support */
@@ -305,4 +326,31 @@ ion-card {
 
 .mt-auto {
   margin-top: auto;
+}
+
+/* ==========================================================================
+   ION-MODAL / ION-DATETIME
+   Ensure calendar days are visible with proper styling
+   ========================================================================== */
+ion-modal ion-content {
+  --background: var(--ion-background-color, #fff);
+}
+
+/* Ensure IonDatetime calendar days are visible */
+ion-datetime {
+  --background: var(--ion-background-color, #fff);
+  color: var(--ion-text-color, #000);
+}
+
+ion-datetime::part(calendar-day) {
+  color: var(--ion-text-color, #000);
+}
+
+ion-datetime::part(calendar-day today) {
+  color: var(--ion-color-primary, #00A86B);
+}
+
+ion-datetime::part(calendar-day active) {
+  background: var(--ion-color-primary, #00A86B);
+  color: #fff;
 }

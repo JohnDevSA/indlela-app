@@ -16,6 +16,26 @@ export function useAuth() {
   const otpSent = ref(false)
   const otpPhone = ref<string | null>(null)
 
+  /**
+   * Get the selected role from session storage (set during onboarding flow)
+   */
+  const getSelectedRole = (): 'customer' | 'provider' => {
+    if (typeof window !== 'undefined') {
+      const role = sessionStorage.getItem('indlela_selected_role')
+      if (role === 'provider') return 'provider'
+    }
+    return 'customer'
+  }
+
+  /**
+   * Clear the selected role from session storage
+   */
+  const clearSelectedRole = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('indlela_selected_role')
+    }
+  }
+
   // Computed
   const isAuthenticated = computed(() => authStore.isAuthenticated)
   const user = computed(() => authStore.user)
@@ -115,16 +135,25 @@ export function useAuth() {
 
         // Any 6-digit OTP works in dev mode
         if (otp.length === 6) {
-          // Determine user type based on phone number
+          // Use the role selected during onboarding, with fallback to phone-based detection
+          const selectedRole = getSelectedRole()
           let userType: MockUserType = 'customer'
 
-          if (otpPhone.value?.includes('831')) {
-            userType = 'provider'
-          } else if (otpPhone.value?.includes('801')) {
+          // Admin detection via phone number (special case)
+          if (otpPhone.value?.includes('801')) {
             userType = 'admin'
+          } else if (selectedRole === 'provider') {
+            // User selected provider role - create as new provider needing onboarding
+            userType = 'newProvider'
+          } else {
+            // User selected customer role - create as new customer needing onboarding
+            userType = 'newCustomer'
           }
 
           authStore.devLogin(userType)
+
+          // Clear selected role after successful login
+          clearSelectedRole()
 
           // Reset OTP state
           otpSent.value = false
@@ -142,9 +171,13 @@ export function useAuth() {
       const response = await post<{ data: AuthResponse }>('/auth/verify-otp', {
         phone: otpPhone.value,
         otp,
+        role: getSelectedRole(), // Send selected role to backend
       })
 
       authStore.setAuth(response.data)
+
+      // Clear selected role after successful login
+      clearSelectedRole()
 
       // Reset OTP state
       otpSent.value = false
@@ -175,6 +208,7 @@ export function useAuth() {
    * Dev login - directly login as a specific user type
    */
   const devLoginAs = (userType: MockUserType): User => {
+    clearSelectedRole()
     return authStore.devLogin(userType) as User
   }
 
@@ -291,6 +325,8 @@ export function useAuth() {
     // Methods
     normalizePhone,
     isValidPhone,
+    getSelectedRole,
+    clearSelectedRole,
     requestOtp,
     verifyOtp,
     resendOtp,

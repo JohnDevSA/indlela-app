@@ -200,6 +200,9 @@
     "version": "v{version}",
     "become_provider": "Become a Provider"
   },
+  "providers": {
+    "search_placeholder": "Search for nearby providers..."
+  },
   "errors": {
     "network": "Network error. Please check your connection.",
     "server": "Server error. Please try again later.",

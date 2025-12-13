@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Login Page - Phone-based authentication with OTP
- * Refined to use Indlela design system
+ * With back navigation to role selection
  */
 
 import { IonInput } from '@ionic/vue'
@@ -30,6 +30,31 @@ const {
 // State
 const phone = ref('')
 const phoneError = ref<string | null>(null)
+
+// Check if user came from role selection flow
+const hasSelectedRole = ref(false)
+const selectedRole = ref<'customer' | 'provider'>('customer')
+
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    const role = sessionStorage.getItem('indlela_selected_role')
+    hasSelectedRole.value = !!role
+    selectedRole.value = role === 'provider' ? 'provider' : 'customer'
+  }
+})
+
+const selectedRoleLabel = computed(() => {
+  return selectedRole.value === 'provider' ? 'offering services' : 'finding services'
+})
+
+const goBack = () => {
+  haptic('light')
+  if (hasSelectedRole.value) {
+    router.push('/auth/role')
+  } else {
+    router.push('/auth/')
+  }
+}
 
 // Dev simulation account types
 const devAccountTypes: { key: MockUserType; label: string; icon: string; color: 'primary' | 'success' | 'error' | 'warning' | 'info'; description: string }[] = [
@@ -109,6 +134,17 @@ const canSubmit = computed(() => !isLoading.value && phone.value.replace(/\D/g, 
 
 <template>
   <div class="login-page">
+    <!-- Back Button & Role Indicator -->
+    <div class="login-header">
+      <button class="back-btn" @click="goBack">
+        <Icon name="heroicons:arrow-left" />
+      </button>
+      <div v-if="hasSelectedRole" class="role-indicator">
+        <Icon :name="selectedRole === 'provider' ? 'heroicons:briefcase' : 'heroicons:magnifying-glass'" />
+        <span>{{ selectedRoleLabel }}</span>
+      </div>
+    </div>
+
     <h2 class="page-title">{{ t('auth.login_title') }}</h2>
 
     <!-- Dev Mode Quick Login -->
@@ -201,6 +237,58 @@ const canSubmit = computed(() => !isLoading.value && phone.value.replace(/\D/g, 
   min-height: 100%;
 }
 
+.login-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-neutral-100);
+  border: none;
+  border-radius: var(--radius-lg);
+  color: var(--color-neutral-600);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.back-btn:hover {
+  background: var(--color-neutral-200);
+  color: var(--color-neutral-900);
+}
+
+.back-btn:active {
+  transform: scale(0.95);
+}
+
+.back-btn :deep(svg) {
+  width: 20px;
+  height: 20px;
+}
+
+.role-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-primary-50);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: var(--color-primary-700);
+}
+
+.role-indicator :deep(svg) {
+  width: 14px;
+  height: 14px;
+}
+
 .page-title {
   margin: 0 0 var(--space-6);
   font-size: var(--text-2xl);
@@ -208,7 +296,6 @@ const canSubmit = computed(() => !isLoading.value && phone.value.replace(/\D/g, 
   color: var(--color-neutral-900);
 }
 
-/* Dev Section */
 .dev-section {
   padding: var(--space-4);
   margin-bottom: var(--space-6);
@@ -342,7 +429,6 @@ const canSubmit = computed(() => !isLoading.value && phone.value.replace(/\D/g, 
   color: var(--color-neutral-500);
 }
 
-/* Form */
 .login-form {
   flex: 1;
 }
@@ -427,7 +513,6 @@ const canSubmit = computed(() => !isLoading.value && phone.value.replace(/\D/g, 
   height: 14px;
 }
 
-/* Footer */
 .footer {
   margin-top: auto;
   padding-top: var(--space-6);
@@ -435,8 +520,22 @@ const canSubmit = computed(() => !isLoading.value && phone.value.replace(/\D/g, 
   justify-content: center;
 }
 
-/* Dark mode */
 @media (prefers-color-scheme: dark) {
+  .back-btn {
+    background: var(--color-neutral-800);
+    color: var(--color-neutral-400);
+  }
+
+  .back-btn:hover {
+    background: var(--color-neutral-700);
+    color: white;
+  }
+
+  .role-indicator {
+    background: rgba(0, 168, 107, 0.15);
+    color: var(--color-primary-400);
+  }
+
   .page-title {
     color: var(--color-neutral-100);
   }

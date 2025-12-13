@@ -111,9 +111,9 @@ const formatDate = (dateString: string) => {
           </div>
           <h1 class="provider-name">{{ provider.user?.name }}</h1>
           <div class="provider-badges">
-            <IonChip v-if="provider.status === 'verified'" color="success">
+            <IonChip v-if="provider.status === 'verified'" class="verified-chip">
               <IonIcon :icon="checkmarkCircle" />
-              {{ t('provider.verified') }}
+              <span>{{ t('provider.verified') }}</span>
             </IonChip>
           </div>
           <div class="provider-stats">
@@ -262,9 +262,20 @@ const formatDate = (dateString: string) => {
   margin-bottom: 12px;
 }
 
-.provider-badges ion-chip {
-  --background: rgba(255, 255, 255, 0.2);
-  --color: white;
+.verified-chip {
+  --background: white !important;
+  --color: #2dd36f !important;
+  font-weight: 600;
+  padding: 4px 12px;
+}
+
+.verified-chip ion-icon {
+  color: #2dd36f !important;
+  margin-right: 4px;
+}
+
+.verified-chip span {
+  color: #2dd36f !important;
 }
 
 .provider-stats {

@@ -223,8 +223,13 @@ export function useAsyncState<T>(
     }
   }
 
+  // Execute immediately on mount if requested (properly handles the promise)
   if (immediate) {
-    execute()
+    onMounted(() => {
+      execute().catch(() => {
+        // Error already handled in execute()
+      })
+    })
   }
 
   return {

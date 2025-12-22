@@ -54,13 +54,25 @@ export const createApiClient = (baseURL: string, getToken: () => string | null) 
   })
 }
 
-// API error helper
+// API error helper - validates full ApiError structure
 export function isApiError(error: unknown): error is ApiError {
+  if (typeof error !== 'object' || error === null) {
+    return false
+  }
+
+  if (!('error' in error)) {
+    return false
+  }
+
+  const errObj = (error as Record<string, unknown>).error
+  if (typeof errObj !== 'object' || errObj === null) {
+    return false
+  }
+
+  // Verify required message field exists and is a string
   return (
-    typeof error === 'object' &&
-    error !== null &&
-    'error' in error &&
-    typeof (error as ApiError).error === 'object'
+    'message' in errObj &&
+    typeof (errObj as Record<string, unknown>).message === 'string'
   )
 }
 

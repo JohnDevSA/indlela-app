@@ -195,9 +195,11 @@ export function useBooking() {
         return bookings.value[index] || null
       }
     } catch (e) {
-      // Rollback on error
+      // Rollback to original booking on error (avoids full refetch)
+      if (originalBooking && index !== -1) {
+        bookings.value[index] = originalBooking
+      }
       error.value = getErrorMessage(e)
-      await fetchBookings() // Refresh from server/cache
       return null
     } finally {
       isLoading.value = false

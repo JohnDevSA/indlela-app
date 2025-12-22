@@ -75,7 +75,9 @@ export async function queueAction(
   type: OfflineActionType,
   payload: Record<string, unknown>
 ): Promise<string> {
-  const localId = payload.localId as string || generateLocalId()
+  // Validate and normalize localId (handle empty string, whitespace, or undefined)
+  const providedLocalId = payload.localId as string | undefined
+  const localId = providedLocalId?.trim() || generateLocalId()
 
   await db.queue.add({
     type,
@@ -128,6 +130,36 @@ export async function updateActionRetry(
 // ============================================
 
 /**
+ * Check if an error is retriable (network/server errors)
+ * Non-retriable: 4xx client errors (except 408, 429)
+ * Retriable: 5xx server errors, network errors, 408, 429
+ */
+function isRetriableError(error: unknown): boolean {
+  // Network errors are always retriable
+  if (error instanceof TypeError && error.message.includes('fetch')) {
+    return true
+  }
+
+  // Check for HTTP status codes
+  const errorWithStatus = error as { status?: number; statusCode?: number }
+  const status = errorWithStatus.status || errorWithStatus.statusCode
+
+  if (status) {
+    // 4xx client errors are NOT retriable (except 408 timeout, 429 rate limit)
+    if (status >= 400 && status < 500) {
+      return status === 408 || status === 429
+    }
+    // 5xx server errors ARE retriable
+    if (status >= 500) {
+      return true
+    }
+  }
+
+  // Default: assume retriable for unknown errors (network issues)
+  return true
+}
+
+/**
  * Process all queued actions
  * Returns array of sync results
  */
@@ -144,14 +176,32 @@ export async function processQueue(
 
       if (result.status === 'synced' || result.status === 'already_synced') {
         await removeAction(action.id!)
+      } else if (result.status === 'failed') {
+        // If syncFn returned failed status, remove action
+        await removeAction(action.id!)
       }
     } catch (error) {
-      const newRetryCount = action.retryCount + 1
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+
+      // Check if error is retriable
+      if (!isRetriableError(error)) {
+        // Non-retriable error: fail immediately
+        console.error('[OfflineQueue] Non-retriable error, removing action:', action.type, errorMessage)
+        await removeAction(action.id!)
+        results.push({
+          localId: action.localId,
+          status: 'failed',
+          error: `Non-retriable: ${errorMessage}`,
+        })
+        continue
+      }
+
+      // Retriable error: increment retry count
+      const newRetryCount = action.retryCount + 1
 
       // Remove after max retries
       if (newRetryCount >= 5) {
-        console.error('Action failed after 5 retries:', action)
+        console.error('[OfflineQueue] Action failed after 5 retries:', action.type)
         await removeAction(action.id!)
         results.push({
           localId: action.localId,
@@ -290,8 +340,17 @@ export async function clearAllCache(): Promise<void> {
 export async function clearExpiredCache(maxAgeMs: number = 24 * 60 * 60 * 1000): Promise<void> {
   const cutoff = new Date(Date.now() - maxAgeMs)
 
-  await Promise.all([
+  // Handle each table separately to prevent one failure from blocking others
+  const results = await Promise.allSettled([
     db.providers.where('cachedAt').below(cutoff).delete(),
     db.services.where('cachedAt').below(cutoff).delete(),
   ])
+
+  // Log any failures but don't throw (cache cleanup is non-critical)
+  results.forEach((result, index) => {
+    if (result.status === 'rejected') {
+      const tables = ['providers', 'services']
+      console.warn(`[OfflineQueue] Failed to clear expired ${tables[index]} cache:`, result.reason)
+    }
+  })
 }

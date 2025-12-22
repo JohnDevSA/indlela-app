@@ -22,14 +22,25 @@ export function useOffline() {
   // Non-reactive lock to prevent concurrent sync calls
   let syncLock: Promise<SyncResult[]> | null = null
 
-  // Update online status
-  const updateOnlineStatus = () => {
-    isOnline.value = navigator.onLine
+  // Debounce timer for online status changes
+  let statusDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
-    if (isOnline.value) {
-      // Trigger sync when coming back online
-      syncPendingActions()
+  // Update online status with debounce to prevent rapid-fire sync calls
+  const updateOnlineStatus = () => {
+    // Clear any pending debounce
+    if (statusDebounceTimer) {
+      clearTimeout(statusDebounceTimer)
     }
+
+    // Debounce by 500ms to handle rapid online/offline flicker
+    statusDebounceTimer = setTimeout(() => {
+      isOnline.value = navigator.onLine
+
+      if (isOnline.value) {
+        // Trigger sync when coming back online
+        syncPendingActions()
+      }
+    }, 500)
   }
 
   // Update pending count
@@ -72,6 +83,15 @@ export function useOffline() {
 
   // Sync a single action
   const syncAction = async (action: QueuedAction): Promise<SyncResult> => {
+    // Validate payload exists
+    if (!action.payload || typeof action.payload !== 'object') {
+      return {
+        localId: action.localId,
+        status: 'failed',
+        error: 'Invalid payload: payload is missing or not an object',
+      }
+    }
+
     const { post, put } = useApi()
 
     switch (action.type) {
@@ -87,6 +107,9 @@ export function useOffline() {
 
       case 'UPDATE_BOOKING': {
         const bookingId = action.payload.id as string
+        if (!bookingId) {
+          return { localId: action.localId, status: 'failed', error: 'Missing booking ID' }
+        }
         await put(`/bookings/${bookingId}`, action.payload)
         return {
           localId: action.localId,
@@ -97,6 +120,9 @@ export function useOffline() {
       case 'UPDATE_STATUS': {
         const bookingId = action.payload.id as string
         const status = action.payload.status as string
+        if (!bookingId || !status) {
+          return { localId: action.localId, status: 'failed', error: 'Missing booking ID or status' }
+        }
         await post(`/bookings/${bookingId}/${status}`)
         return {
           localId: action.localId,
@@ -106,6 +132,9 @@ export function useOffline() {
 
       case 'CREATE_REVIEW': {
         const bookingId = action.payload.bookingId as string
+        if (!bookingId) {
+          return { localId: action.localId, status: 'failed', error: 'Missing booking ID for review' }
+        }
         await post(`/bookings/${bookingId}/review`, action.payload)
         return {
           localId: action.localId,
@@ -160,8 +189,11 @@ export function useOffline() {
     }
   })
 
-  // Clean up event listeners on unmount
+  // Clean up event listeners and timers on unmount
   onUnmounted(() => {
+    if (statusDebounceTimer) {
+      clearTimeout(statusDebounceTimer)
+    }
     if (typeof window !== 'undefined') {
       window.removeEventListener('online', updateOnlineStatus)
       window.removeEventListener('offline', updateOnlineStatus)

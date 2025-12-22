@@ -90,8 +90,13 @@ export function useApi() {
   }
 }
 
+// Cached API instance for $api helper (avoids creating new instance on every call)
+let cachedApi: ReturnType<typeof useApi> | null = null
+
 // Provide $api globally for convenience
 export const $api = <T>(url: string, options?: Parameters<ReturnType<typeof useApi>['request']>[1]) => {
-  const { request } = useApi()
-  return request<T>(url, options)
+  if (!cachedApi) {
+    cachedApi = useApi()
+  }
+  return cachedApi.request<T>(url, options)
 }

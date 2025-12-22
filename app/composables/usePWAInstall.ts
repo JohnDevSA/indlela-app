@@ -27,6 +27,12 @@ export function usePWAInstall() {
   // Store the install prompt event
   let deferredPrompt: BeforeInstallPromptEvent | null = null
 
+  // Store event handlers for cleanup
+  let beforeInstallHandler: ((e: BeforeInstallPromptEvent) => void) | null = null
+  let appInstalledHandler: (() => void) | null = null
+  let displayModeHandler: ((e: MediaQueryListEvent) => void) | null = null
+  let displayModeQuery: MediaQueryList | null = null
+
   // Check if app is already installed
   const checkIfInstalled = () => {
     if (typeof window === 'undefined') return false
@@ -51,29 +57,58 @@ export function usePWAInstall() {
     // Check initial install status
     checkIfInstalled()
 
-    // Listen for beforeinstallprompt event
-    window.addEventListener('beforeinstallprompt', (e: BeforeInstallPromptEvent) => {
+    // Define handlers for cleanup
+    beforeInstallHandler = (e: BeforeInstallPromptEvent) => {
       // Prevent the mini-infobar from appearing on mobile
       e.preventDefault()
       // Store the event for later use
       deferredPrompt = e
       // Update UI to show install button
       canInstall.value = true
-    })
+    }
 
-    // Listen for successful installation
-    window.addEventListener('appinstalled', () => {
+    appInstalledHandler = () => {
       // Clear the deferred prompt
       deferredPrompt = null
       canInstall.value = false
       isInstalled.value = true
       console.log('[PWA] App installed successfully')
-    })
+    }
+
+    displayModeHandler = (e: MediaQueryListEvent) => {
+      isInstalled.value = e.matches
+    }
+
+    // Listen for beforeinstallprompt event
+    window.addEventListener('beforeinstallprompt', beforeInstallHandler)
+
+    // Listen for successful installation
+    window.addEventListener('appinstalled', appInstalledHandler)
 
     // Listen for display mode changes
-    window.matchMedia('(display-mode: standalone)').addEventListener('change', (e) => {
-      isInstalled.value = e.matches
-    })
+    displayModeQuery = window.matchMedia('(display-mode: standalone)')
+    displayModeQuery.addEventListener('change', displayModeHandler)
+  }
+
+  // Cleanup event listeners
+  const cleanup = () => {
+    if (typeof window === 'undefined') return
+
+    if (beforeInstallHandler) {
+      window.removeEventListener('beforeinstallprompt', beforeInstallHandler)
+      beforeInstallHandler = null
+    }
+
+    if (appInstalledHandler) {
+      window.removeEventListener('appinstalled', appInstalledHandler)
+      appInstalledHandler = null
+    }
+
+    if (displayModeQuery && displayModeHandler) {
+      displayModeQuery.removeEventListener('change', displayModeHandler)
+      displayModeHandler = null
+      displayModeQuery = null
+    }
   }
 
   // Trigger the install prompt
@@ -149,9 +184,13 @@ export function usePWAInstall() {
     return navigator.serviceWorker.getRegistration()
   }
 
-  // Initialize on mount
+  // Initialize on mount and cleanup on unmount
   onMounted(() => {
     initPWA()
+  })
+
+  onUnmounted(() => {
+    cleanup()
   })
 
   return {
@@ -169,5 +208,6 @@ export function usePWAInstall() {
     getDisplayMode,
     isServiceWorkerSupported,
     getServiceWorkerRegistration,
+    cleanup,
   }
 }

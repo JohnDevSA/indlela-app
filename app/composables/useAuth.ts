@@ -277,6 +277,7 @@ export function useAuth() {
 
   /**
    * Logout user
+   * Clears offline data to protect user privacy on shared devices
    */
   const logout = async (): Promise<void> => {
     isLoading.value = true
@@ -289,6 +290,14 @@ export function useAuth() {
     } catch {
       // Ignore logout errors
     } finally {
+      // Clear offline data before logout (security: remove cached user data)
+      try {
+        const { clearOfflineData } = useOffline()
+        await clearOfflineData()
+      } catch {
+        // Continue with logout even if cache clear fails
+      }
+
       authStore.logout()
       isLoading.value = false
       navigateTo('/auth/login')

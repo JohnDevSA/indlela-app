@@ -9,21 +9,18 @@ export const createApiClient = (baseURL: string, getToken: () => string | null) 
     retryDelay: 1000,
 
     async onRequest({ options }) {
-      const token = getToken()
-      if (token) {
-        options.headers = {
-          ...options.headers,
-          Authorization: `Bearer ${token}`,
-        }
-      }
+      // Ensure headers object exists before spreading
+      const existingHeaders = options.headers as Record<string, string> | undefined
 
-      // Add locale header
+      const token = getToken()
       const locale = useCookie('indlela_locale').value || 'en'
+
       options.headers = {
-        ...options.headers,
+        ...(existingHeaders || {}),
         'Accept-Language': locale,
         'Content-Type': 'application/json',
         Accept: 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       }
     },
 
@@ -41,12 +38,14 @@ export const createApiClient = (baseURL: string, getToken: () => string | null) 
     async onResponseError({ response }) {
       const error = response._data as ApiError
 
-      // Handle specific error codes
+      // Handle 401: token expired or invalid
       if (response.status === 401) {
-        // Token expired or invalid - clear auth state
         const authStore = useAuthStore()
-        authStore.logout()
-        navigateTo('/auth/login')
+        // Only logout if still authenticated (prevents duplicate logout calls)
+        if (authStore.isAuthenticated) {
+          authStore.logout()
+          navigateTo('/auth/login')
+        }
       }
 
       console.error('[API Response Error]', error)

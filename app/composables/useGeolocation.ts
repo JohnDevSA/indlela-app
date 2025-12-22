@@ -13,6 +13,10 @@ export function useGeolocation() {
   const error = ref<string | null>(null)
   const permissionStatus = ref<'granted' | 'denied' | 'prompt'>('prompt')
 
+  // Track permission listener for cleanup
+  let permissionResult: PermissionStatus | null = null
+  let permissionChangeHandler: (() => void) | null = null
+
   /**
    * Check location permission status
    */
@@ -20,12 +24,20 @@ export function useGeolocation() {
     try {
       // For web/PWA, use browser API
       if (typeof navigator !== 'undefined' && 'permissions' in navigator) {
+        // Clean up any existing listener before adding new one
+        if (permissionResult && permissionChangeHandler) {
+          permissionResult.removeEventListener('change', permissionChangeHandler)
+        }
+
         const result = await navigator.permissions.query({ name: 'geolocation' })
         permissionStatus.value = result.state as 'granted' | 'denied' | 'prompt'
 
-        result.addEventListener('change', () => {
+        // Store reference for cleanup
+        permissionResult = result
+        permissionChangeHandler = () => {
           permissionStatus.value = result.state as 'granted' | 'denied' | 'prompt'
-        })
+        }
+        result.addEventListener('change', permissionChangeHandler)
 
         return result.state === 'granted'
       }
@@ -182,6 +194,17 @@ export function useGeolocation() {
     error.value = null
   }
 
+  /**
+   * Cleanup permission listener - call on component unmount
+   */
+  const cleanup = () => {
+    if (permissionResult && permissionChangeHandler) {
+      permissionResult.removeEventListener('change', permissionChangeHandler)
+      permissionResult = null
+      permissionChangeHandler = null
+    }
+  }
+
   // Computed
   const hasLocation = computed(() => coordinates.value !== null)
   const canRequestLocation = computed(() => permissionStatus.value !== 'denied')
@@ -205,5 +228,6 @@ export function useGeolocation() {
     formatDistance,
     isWithinRadius,
     clearError,
+    cleanup,
   }
 }

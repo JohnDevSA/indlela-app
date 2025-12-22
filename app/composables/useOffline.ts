@@ -19,6 +19,9 @@ export function useOffline() {
   const lastSyncAt = ref<Date | null>(null)
   const syncError = ref<string | null>(null)
 
+  // Non-reactive lock to prevent concurrent sync calls
+  let syncLock: Promise<SyncResult[]> | null = null
+
   // Update online status
   const updateOnlineStatus = () => {
     isOnline.value = navigator.onLine
@@ -36,24 +39,35 @@ export function useOffline() {
 
   // Sync pending actions with the server
   const syncPendingActions = async (): Promise<SyncResult[]> => {
-    if (isSyncing.value || !isOnline.value) {
+    // Return existing sync promise if already running (prevents race condition)
+    if (syncLock) {
+      return syncLock
+    }
+
+    if (!isOnline.value) {
       return []
     }
 
-    isSyncing.value = true
-    syncError.value = null
+    // Create locked sync operation
+    syncLock = (async () => {
+      isSyncing.value = true
+      syncError.value = null
 
-    try {
-      const results = await processQueue(syncAction)
-      await updatePendingCount()
-      lastSyncAt.value = new Date()
-      return results
-    } catch (error) {
-      syncError.value = error instanceof Error ? error.message : 'Sync failed'
-      return []
-    } finally {
-      isSyncing.value = false
-    }
+      try {
+        const results = await processQueue(syncAction)
+        await updatePendingCount()
+        lastSyncAt.value = new Date()
+        return results
+      } catch (error) {
+        syncError.value = error instanceof Error ? error.message : 'Sync failed'
+        return []
+      } finally {
+        isSyncing.value = false
+        syncLock = null
+      }
+    })()
+
+    return syncLock
   }
 
   // Sync a single action

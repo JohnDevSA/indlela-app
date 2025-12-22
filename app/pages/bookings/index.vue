@@ -73,15 +73,14 @@ const setFilter = (value: 'upcoming' | 'past') => {
       <IonToolbar color="primary">
         <IonTitle>{{ t('nav.bookings') }}</IonTitle>
       </IonToolbar>
+      <!-- Unified Offline/Sync Status Bar -->
+      <OfflineHeaderBar />
     </IonHeader>
 
     <IonContent :fullscreen="true">
       <IonRefresher slot="fixed" @ionRefresh="handleRefresh">
         <IonRefresherContent />
       </IonRefresher>
-
-      <!-- Offline Indicator -->
-      <OfflineIndicator />
 
       <!-- Filter Tabs -->
       <div class="filter-tabs">

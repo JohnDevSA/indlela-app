@@ -32,6 +32,8 @@
     "ok": "OK",
     "offline_mode": "You're offline",
     "offline_message": "Some features may be limited",
+    "syncing": "Syncing...",
+    "tap_to_sync": "Tap to sync",
     "pending_sync": "{count} pending sync | {count} pending syncs",
     "no_results": "No results found",
     "pull_to_refresh": "Pull to refresh"
@@ -201,7 +203,11 @@
     "become_provider": "Become a Provider"
   },
   "providers": {
-    "search_placeholder": "Search for nearby providers..."
+    "title": "Nearby Providers",
+    "search_placeholder": "Search for nearby providers...",
+    "sort_distance": "Sort by Distance",
+    "sort_rating": "Sort by Rating",
+    "sort_reviews": "Sort by Reviews"
   },
   "errors": {
     "network": "Network error. Please check your connection.",

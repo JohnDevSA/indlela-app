@@ -79,15 +79,14 @@ onMounted(() => {
           @ionChange="searchProviders"
         />
       </IonToolbar>
+      <!-- Unified Offline/Sync Status Bar -->
+      <OfflineHeaderBar />
     </IonHeader>
 
     <IonContent :fullscreen="true">
       <IonRefresher slot="fixed" @ionRefresh="handleRefresh">
         <IonRefresherContent />
       </IonRefresher>
-
-      <!-- Offline Indicator -->
-      <OfflineIndicator />
 
       <!-- Popular Services Section -->
       <section class="section">

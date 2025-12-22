@@ -19,6 +19,7 @@ import {
   nearbyProviders as mockNearbyProviders,
   mockDelay,
 } from '~/utils/mock-data'
+import { FRESHNESS_THRESHOLDS } from '~/composables/useDataFreshness'
 
 definePageMeta({
   layout: 'default',
@@ -35,10 +36,20 @@ const isLoading = ref(true)
 const popularServices = ref(mockPopularServices)
 const nearbyProviders = ref(mockNearbyProviders)
 
+// Track when data was cached (for stale indicator)
+const dataCachedAt = ref<Date | null>(null)
+
 // Methods
 const handleRefresh = async (event: any) => {
   await mockDelay(800)
+  // Update cache timestamp on refresh
+  dataCachedAt.value = new Date()
   event.target?.complete()
+}
+
+const handleStaleRefresh = () => {
+  // Trigger a refresh when user taps "Refresh" on stale banner
+  dataCachedAt.value = new Date()
 }
 
 const searchProviders = () => {
@@ -55,10 +66,12 @@ const viewProvider = (providerId: string) => {
   router.push(`/providers/${providerId}`)
 }
 
-// Simulate loading
+// Simulate loading and set initial cache timestamp
 onMounted(() => {
   setTimeout(() => {
     isLoading.value = false
+    // Set cache timestamp when data "loads"
+    dataCachedAt.value = new Date()
   }, 1000)
 })
 </script>
@@ -87,6 +100,13 @@ onMounted(() => {
       <IonRefresher slot="fixed" @ionRefresh="handleRefresh">
         <IonRefresherContent />
       </IonRefresher>
+
+      <!-- Stale Data Banner (shows when data is older than threshold) -->
+      <StaleDataBanner
+        :cached-at="dataCachedAt"
+        :threshold="FRESHNESS_THRESHOLDS.providers"
+        @refresh="handleStaleRefresh"
+      />
 
       <!-- Popular Services Section -->
       <section class="section">

@@ -14,6 +14,7 @@ import {
   IonRefresherContent,
 } from '@ionic/vue'
 import { mockBookings, mockDelay } from '~/utils/mock-data'
+import { FRESHNESS_THRESHOLDS } from '~/composables/useDataFreshness'
 
 definePageMeta({
   layout: 'default',
@@ -27,6 +28,9 @@ const { haptic } = useAnimation()
 const isLoading = ref(true)
 const filter = ref<'upcoming' | 'past'>('upcoming')
 const bookings = ref<typeof mockBookings>([])
+
+// Track when data was cached (for stale indicator)
+const dataCachedAt = ref<Date | null>(null)
 
 // Computed
 const filteredBookings = computed(() => {
@@ -46,12 +50,21 @@ onMounted(async () => {
   await mockDelay(600)
   bookings.value = mockBookings
   isLoading.value = false
+  // Set cache timestamp when data loads
+  dataCachedAt.value = new Date()
 })
 
 // Methods
 const handleRefresh = async (event: any) => {
   await mockDelay(800)
+  // Update cache timestamp on refresh
+  dataCachedAt.value = new Date()
   event.target?.complete()
+}
+
+const handleStaleRefresh = () => {
+  // Trigger a refresh when user taps "Refresh" on stale banner
+  dataCachedAt.value = new Date()
 }
 
 const viewBooking = (bookingId: string) => {
@@ -81,6 +94,13 @@ const setFilter = (value: 'upcoming' | 'past') => {
       <IonRefresher slot="fixed" @ionRefresh="handleRefresh">
         <IonRefresherContent />
       </IonRefresher>
+
+      <!-- Stale Data Banner (shows when data is older than threshold) -->
+      <StaleDataBanner
+        :cached-at="dataCachedAt"
+        :threshold="FRESHNESS_THRESHOLDS.bookings"
+        @refresh="handleStaleRefresh"
+      />
 
       <!-- Filter Tabs -->
       <div class="filter-tabs">

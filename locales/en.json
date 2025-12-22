@@ -38,6 +38,16 @@
     "no_results": "No results found",
     "pull_to_refresh": "Pull to refresh"
   },
+  "offline": {
+    "updated_ago": "Updated {time}",
+    "refresh": "Refresh",
+    "just_now": "just now",
+    "minutes_ago": "{count} min ago",
+    "hours_ago": "{count}h ago",
+    "days_ago": "{count}d ago",
+    "yesterday": "yesterday",
+    "viewing_saved": "Viewing saved data"
+  },
   "auth": {
     "tagline": "Connect with trusted service providers",
     "footer_text": "By continuing, you agree to our Terms of Service",

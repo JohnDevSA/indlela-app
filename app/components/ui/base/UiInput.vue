@@ -201,7 +201,7 @@ defineExpose({
   align-items: center;
   background: var(--color-neutral-0);
   border: 1.5px solid var(--color-neutral-300);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-input);
   transition-property: border-color, box-shadow;
   transition-duration: var(--duration-normal);
   transition-timing-function: var(--ease-in-out);

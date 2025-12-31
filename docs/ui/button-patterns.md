@@ -2,6 +2,8 @@
 
 Standard patterns for button usage across the Indlela app. These patterns ensure consistency, accessibility, and optimal UX across all platforms (PWA, Android, iOS).
 
+> **Design Note:** All buttons use `--radius-button` (20px) for a soft, pill-like appearance that reflects Indlela's friendly, approachable brand identity. See [Design Tokens](./design-tokens.md#border-radius) for details.
+
 ## Component Options
 
 Indlela provides two button component options:

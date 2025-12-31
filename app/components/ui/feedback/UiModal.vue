@@ -178,7 +178,7 @@ const modalClasses = computed(() => [
   flex-direction: column;
   max-height: calc(100vh - var(--space-8));
   background: var(--color-neutral-0);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-modal);
   box-shadow: var(--shadow-xl);
   outline: none;
   overflow: hidden;

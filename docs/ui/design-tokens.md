@@ -117,14 +117,53 @@ Based on an 8px grid for consistent rhythm.
 
 ## Border Radius
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--radius-sm` | 6px | Small elements |
-| `--radius-md` | 8px | Buttons, inputs |
-| `--radius-lg` | 12px | Cards |
-| `--radius-xl` | 16px | Modals |
-| `--radius-2xl` | 24px | Large cards |
-| `--radius-full` | 9999px | Pills, avatars |
+Indlela uses **generous, soft border radii** to reflect the Ubuntu philosophy of warmth, friendliness, and accessibility. Our rounded corners convey approachability and trust - essential qualities for a community-focused service marketplace.
+
+### Base Scale
+
+| Token | Value | Pixels | Usage |
+|-------|-------|--------|-------|
+| `--radius-sm` | 0.5rem | 8px | Small elements, tags |
+| `--radius-md` | 0.75rem | 12px | Chips, small cards |
+| `--radius-lg` | 1rem | 16px | General purpose |
+| `--radius-xl` | 1.25rem | 20px | Buttons, inputs |
+| `--radius-2xl` | 1.75rem | 28px | Cards, containers |
+| `--radius-3xl` | 2rem | 32px | Hero sections |
+| `--radius-full` | 9999px | - | Pills, avatars, circular |
+
+### Semantic Tokens
+
+For consistency across the app, use these semantic tokens for common UI elements:
+
+| Token | Maps To | Usage |
+|-------|---------|-------|
+| `--radius-button` | `--radius-xl` (20px) | All buttons - soft, pill-like appearance |
+| `--radius-input` | `--radius-xl` (20px) | Text inputs, selects, textareas |
+| `--radius-card` | `--radius-2xl` (28px) | Cards, containers, list items |
+| `--radius-modal` | `--radius-2xl` (28px) | Modals, dialogs, bottom sheets |
+
+### Design Philosophy
+
+The soft, rounded corners serve multiple purposes:
+1. **Brand Identity**: Distinguishes Indlela from sharp, corporate interfaces
+2. **Trust**: Rounded shapes feel safer and more inviting
+3. **Accessibility**: Softer edges are easier to perceive and interact with
+4. **Mobile-First**: Rounded corners work better with touch interfaces
+
+```css
+/* Example: Using semantic tokens */
+.my-button {
+  border-radius: var(--radius-button); /* 20px */
+}
+
+.my-input {
+  border-radius: var(--radius-input); /* 20px */
+}
+
+.my-card {
+  border-radius: var(--radius-card); /* 28px */
+}
+```
 
 ## Shadows
 

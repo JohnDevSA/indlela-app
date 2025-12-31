@@ -95,7 +95,7 @@ function handleClick(event: MouseEvent) {
   justify-content: center;
   gap: var(--space-2);
   border: none;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-button);
   font-family: var(--font-sans);
   font-weight: var(--font-semibold);
   cursor: pointer;

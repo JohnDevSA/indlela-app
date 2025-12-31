@@ -121,16 +121,24 @@
 
   /* ========================================================================
      BORDER RADIUS
-     Rounded corners for friendly, approachable UI
+     Soft, rounded corners reflecting Ubuntu philosophy - friendly & approachable
+     Indlela uses generous radii to convey warmth and accessibility
      ======================================================================== */
 
   --radius-none: 0;
-  --radius-sm: 0.375rem;   /* 6px */
-  --radius-md: 0.5rem;     /* 8px */
-  --radius-lg: 0.75rem;    /* 12px */
-  --radius-xl: 1rem;       /* 16px */
-  --radius-2xl: 1.5rem;    /* 24px */
+  --radius-sm: 0.5rem;     /* 8px */
+  --radius-md: 0.75rem;    /* 12px */
+  --radius-lg: 1rem;       /* 16px */
+  --radius-xl: 1.25rem;    /* 20px */
+  --radius-2xl: 1.75rem;   /* 28px */
+  --radius-3xl: 2rem;      /* 32px */
   --radius-full: 9999px;
+
+  /* Semantic radius tokens for common UI elements */
+  --radius-button: var(--radius-xl);   /* 20px - soft, pill-like buttons */
+  --radius-input: var(--radius-xl);    /* 20px - matching soft inputs */
+  --radius-card: var(--radius-2xl);    /* 28px - generous card corners */
+  --radius-modal: var(--radius-2xl);   /* 28px - friendly dialog corners */
 
   /* ========================================================================
      SHADOWS

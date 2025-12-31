@@ -83,7 +83,7 @@ function handleClick(event: MouseEvent) {
   position: relative;
   display: flex;
   flex-direction: column;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-card);
   overflow: hidden;
   transition-property: transform, box-shadow, border-color;
   transition-duration: var(--duration-normal);

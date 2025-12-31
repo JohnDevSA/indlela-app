@@ -6,9 +6,6 @@
 
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
   IonToggle,
 } from '@ionic/vue'
@@ -123,11 +120,8 @@ const supportItems = [
 
 <template>
   <IonPage>
-    <IonHeader>
-      <IonToolbar color="primary">
-        <IonTitle>{{ t('settings.title') }}</IonTitle>
-      </IonToolbar>
-    </IonHeader>
+    <!-- App Header -->
+    <AppHeader :title="t('settings.title')" :show-offline-bar="false" />
 
     <IonContent :fullscreen="true">
       <!-- Profile Header -->
@@ -274,9 +268,8 @@ const supportItems = [
 
       <!-- Language Modal -->
       <UiModal
-        :open="showLanguageModal"
+        v-model="showLanguageModal"
         :title="t('settings.select_language')"
-        @close="showLanguageModal = false"
       >
         <div class="language-list">
           <button
@@ -297,9 +290,8 @@ const supportItems = [
 
       <!-- Logout Confirmation Modal -->
       <UiModal
-        :open="showLogoutModal"
+        v-model="showLogoutModal"
         :title="t('auth.logout_confirm')"
-        @close="showLogoutModal = false"
       >
         <p class="logout-message">{{ t('auth.logout_message') }}</p>
         <div class="logout-actions">
@@ -384,7 +376,7 @@ const supportItems = [
 }
 
 .settings-section--last {
-  padding-bottom: calc(var(--space-8) + var(--safe-area-bottom, 0px));
+  padding-bottom: calc(var(--space-8) + var(--safe-area-bottom, 20px));
 }
 
 .section-title {

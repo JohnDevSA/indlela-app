@@ -126,7 +126,13 @@
       "schedule": "Schedule",
       "earnings": "Earnings",
       "settings": "Settings"
-    }
+    },
+    "booking_preferences": "Booking Preferences",
+    "auto_accept": "Auto-Accept Bookings",
+    "auto_accept_description": "Automatically accept bookings within your availability",
+    "auto_accept_enabled": "Auto-accept is enabled",
+    "auto_accept_disabled": "You'll manually accept each booking",
+    "instant_badge": "Instant"
   },
   "booking": {
     "title": "Booking",
@@ -190,7 +196,9 @@
     "reschedule_success": "Booking rescheduled successfully",
     "reschedule_error": "Failed to reschedule booking. Please try again.",
     "provider_will_be_notified": "The service provider will be notified of this change",
-    "customer_will_be_notified": "The customer will be notified of this change"
+    "customer_will_be_notified": "The customer will be notified of this change",
+    "instantly_confirmed": "Instantly Confirmed",
+    "auto_accepted_message": "This provider accepts bookings instantly!"
   },
   "review": {
     "title": "Rate Your Experience",

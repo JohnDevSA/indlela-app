@@ -24,6 +24,7 @@ import {
   helpCircle,
   logOut,
   home,
+  flash,
 } from 'ionicons/icons'
 import { mockProviders } from '~/utils/mock-data'
 
@@ -33,15 +34,34 @@ definePageMeta({
 
 const { t } = useI18n()
 const router = useRouter()
+const providerStore = useProviderStore()
 
-// Mock current provider
+// Mock current provider (would come from auth in real app)
 const currentProvider = mockProviders[0]
 
 // State
 const isAvailable = ref(true)
+const autoAcceptEnabled = ref(currentProvider.preferences?.autoAcceptEnabled ?? false)
 const showLogoutSheet = ref(false)
 
+// Load preferences on mount
+onMounted(async () => {
+  const preferences = await providerStore.fetchPreferences(currentProvider.id)
+  if (preferences) {
+    autoAcceptEnabled.value = preferences.autoAcceptEnabled
+  }
+})
+
 // Methods
+const updateAutoAccept = async (event: CustomEvent) => {
+  const enabled = event.detail.checked
+  const success = await providerStore.toggleAutoAccept(currentProvider.id, enabled)
+  if (!success) {
+    // Revert toggle on failure
+    autoAcceptEnabled.value = !enabled
+  }
+}
+
 const editProfile = () => {
   router.push('/provider-dashboard/edit-profile')
 }
@@ -114,7 +134,8 @@ const logoutButtons = [
         </div>
       </div>
 
-      <!-- Availability Toggle -->
+      <!-- Availability & Booking Preferences -->
+      <div class="section-header">{{ t('provider.booking_preferences') }}</div>
       <IonList class="settings-list">
         <IonItem>
           <IonIcon :icon="checkmarkCircle" slot="start" color="success" />
@@ -123,6 +144,20 @@ const logoutButtons = [
             <p>Toggle off to stop receiving new job requests</p>
           </IonLabel>
           <IonToggle v-model="isAvailable" slot="end" color="success" />
+        </IonItem>
+
+        <IonItem>
+          <IonIcon :icon="flash" slot="start" color="warning" />
+          <IonLabel>
+            <h2>{{ t('provider.auto_accept') }}</h2>
+            <p>{{ t('provider.auto_accept_description') }}</p>
+          </IonLabel>
+          <IonToggle
+            v-model="autoAcceptEnabled"
+            @ionChange="updateAutoAccept"
+            slot="end"
+            color="warning"
+          />
         </IonItem>
       </IonList>
 

@@ -16,7 +16,7 @@ import {
   IonSkeletonText,
   IonActionSheet,
 } from '@ionic/vue'
-import { calendar, time, location, call, chatbubble, star, close, checkmark } from 'ionicons/icons'
+import { calendar, time, location, call, chatbubble, star, close, checkmark, flash } from 'ionicons/icons'
 import { mockBookings, mockDelay } from '~/utils/mock-data'
 
 definePageMeta({
@@ -156,9 +156,15 @@ const cancelSheetButtons = [
       <template v-else-if="booking">
         <!-- Status Header -->
         <div class="booking-header" :class="`status-${booking.status}`">
-          <IonChip :color="getStatusColor(booking.status)" class="status-chip">
-            {{ t(`booking.status.${booking.status}`) }}
-          </IonChip>
+          <div class="status-badges">
+            <IonChip :color="getStatusColor(booking.status)" class="status-chip">
+              {{ t(`booking.status.${booking.status}`) }}
+            </IonChip>
+            <IonChip v-if="booking.autoAccepted" color="warning" class="status-chip auto-accepted-chip">
+              <IonIcon :icon="flash" />
+              {{ t('booking.instantly_confirmed') }}
+            </IonChip>
+          </div>
           <h1 class="service-name">{{ booking.service?.name }}</h1>
           <p class="booking-ref">{{ t('booking.booking_ref', { ref: booking.id.toUpperCase() }) }}</p>
         </div>
@@ -306,8 +312,24 @@ const cancelSheetButtons = [
   background: linear-gradient(180deg, rgba(235, 68, 90, 0.1) 0%, rgba(235, 68, 90, 0.05) 100%);
 }
 
-.status-chip {
+.status-badges {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
   margin-bottom: 12px;
+}
+
+.status-chip {
+  margin: 0;
+}
+
+.auto-accepted-chip {
+  --background: rgba(255, 196, 9, 0.15);
+}
+
+.auto-accepted-chip ion-icon {
+  margin-right: 4px;
 }
 
 .service-name {

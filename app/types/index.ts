@@ -67,6 +67,7 @@ export interface Provider {
   availability?: WeeklyAvailability
   serviceRadiusKm: number
   services?: ProviderService[]
+  preferences?: ProviderPreferences
   createdAt: string
   updatedAt: string
 }
@@ -94,6 +95,14 @@ export interface DayAvailability {
   enabled: boolean
   start: string // HH:mm format
   end: string // HH:mm format
+}
+
+export interface ProviderPreferences {
+  autoAcceptEnabled: boolean
+  autoAcceptServices?: string[] // Optional: limit to specific service IDs
+  notificationsEnabled: boolean
+  smsNotifications: boolean
+  emailNotifications: boolean
 }
 
 // ============================================
@@ -175,6 +184,7 @@ export interface Booking {
   customerNotes?: string
   providerNotes?: string
   cancellationReason?: string
+  autoAccepted?: boolean // True if booking was auto-accepted by provider
   offlineId?: string
   syncedAt?: string
   createdAt: string

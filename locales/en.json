@@ -14,6 +14,8 @@
     "error": "Something went wrong",
     "retry": "Try Again",
     "save": "Save",
+    "saving": "Saving...",
+    "save_changes": "Save Changes",
     "cancel": "Cancel",
     "back": "Back",
     "next": "Next",
@@ -30,13 +32,17 @@
     "yes": "Yes",
     "no": "No",
     "ok": "OK",
+    "optional": "optional",
     "offline_mode": "You're offline",
     "offline_message": "Some features may be limited",
     "syncing": "Syncing...",
     "tap_to_sync": "Tap to sync",
     "pending_sync": "{count} pending sync | {count} pending syncs",
     "no_results": "No results found",
-    "pull_to_refresh": "Pull to refresh"
+    "pull_to_refresh": "Pull to refresh",
+    "at": "at",
+    "notifications": "Notifications",
+    "or": "or"
   },
   "offline": {
     "updated_ago": "Updated {time}",
@@ -169,7 +175,22 @@
       "past_title": "No Past Bookings",
       "past_message": "Your completed and cancelled bookings will appear here.",
       "browse_services": "Browse Services"
-    }
+    },
+    "no_slots_available": "No time slots available for this date",
+    "price_breakdown": "Price Breakdown",
+    "commission": "Commission ({percent}%)",
+    "use_location": "Use my location",
+    "getting_location": "Getting your location...",
+    "address_placeholder": "Enter service address",
+    "reschedule_title": "Reschedule Booking",
+    "reschedule_description": "Select a new date and time for your booking",
+    "current_schedule": "Current Schedule",
+    "new_schedule": "New Schedule",
+    "confirm_reschedule": "Confirm Reschedule",
+    "reschedule_success": "Booking rescheduled successfully",
+    "reschedule_error": "Failed to reschedule booking. Please try again.",
+    "provider_will_be_notified": "The service provider will be notified of this change",
+    "customer_will_be_notified": "The customer will be notified of this change"
   },
   "review": {
     "title": "Rate Your Experience",
@@ -191,6 +212,7 @@
     "account": "Account",
     "profile": "Profile",
     "edit_profile": "Edit Profile",
+    "change_photo": "Change Photo",
     "name": "Name",
     "email": "Email",
     "phone": "Phone",
@@ -212,6 +234,15 @@
     "version": "v{version}",
     "become_provider": "Become a Provider"
   },
+  "profile": {
+    "name": "Full Name",
+    "name_placeholder": "Enter your full name",
+    "email": "Email Address",
+    "email_placeholder": "Enter your email address",
+    "phone": "Phone Number",
+    "phone_readonly_hint": "Phone number cannot be changed",
+    "update_success": "Profile updated successfully!"
+  },
   "providers": {
     "title": "Nearby Providers",
     "search_placeholder": "Search for nearby providers...",
@@ -230,12 +261,54 @@
     "forbidden": "You don't have permission to do this",
     "not_found": "Not found",
     "booking_failed": "Failed to create booking. Please try again.",
-    "location_denied": "Location access denied. Please enable location services."
+    "location_denied": "Location access denied. Please enable location services.",
+    "update_failed": "Failed to update. Please try again."
   },
   "validation": {
     "required": "This field is required",
     "phone_format": "Please enter a valid phone number",
     "min_length": "Must be at least {min} characters",
-    "max_length": "Must be at most {max} characters"
+    "max_length": "Must be at most {max} characters",
+    "name_min": "Name must be at least 2 characters",
+    "email_invalid": "Please enter a valid email address"
+  },
+  "calendar": {
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "morning": "Morning",
+    "afternoon": "Afternoon",
+    "evening": "Evening"
+  },
+  "payment": {
+    "title": "Payment",
+    "select_method": "Select Payment Method",
+    "card": "Card Payment",
+    "eft": "Bank Transfer (EFT)",
+    "cash": "Cash",
+    "card_description": "Pay securely with your credit or debit card",
+    "eft_description": "Pay via instant EFT from your bank account",
+    "cash_description": "Pay the provider in cash after the service",
+    "pay_amount": "Pay R{amount}",
+    "eft_redirect": "Continue to Bank",
+    "confirm_cash": "Confirm Cash Payment",
+    "amount": "Amount",
+    "processing": "Processing payment...",
+    "success": "Payment Successful!",
+    "success_message": "Your payment has been processed successfully.",
+    "failed": "Payment Failed",
+    "try_again": "Try Again",
+    "cancel": "Cancel Payment",
+    "secure": "Payments are secure and encrypted",
+    "powered_by": "Powered by Yoco"
+  },
+  "footer": {
+    "tagline": "Connecting communities with trusted service providers",
+    "contact": "Contact",
+    "links": "Links",
+    "follow": "Follow Us",
+    "rights": "All rights reserved.",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "about": "About Us"
   }
 }

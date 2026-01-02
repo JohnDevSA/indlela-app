@@ -35,6 +35,8 @@ const currentProvider = mockProviders[0]
 const isLoading = ref(true)
 const filter = ref<'pending' | 'upcoming' | 'completed'>('pending')
 const jobs = ref<typeof mockBookings>([])
+const showRescheduleModal = ref(false)
+const selectedJobForReschedule = ref<typeof mockBookings[0] | null>(null)
 
 // Computed
 const filteredJobs = computed(() => {
@@ -94,6 +96,20 @@ const declineJob = (jobId: string) => {
   if (job) {
     job.status = 'cancelled'
   }
+}
+
+const rescheduleJob = (job: typeof mockBookings[0]) => {
+  selectedJobForReschedule.value = job
+  showRescheduleModal.value = true
+}
+
+const handleJobRescheduled = (updatedJob: typeof mockBookings[0]) => {
+  const index = jobs.value.findIndex(j => j.id === updatedJob.id)
+  if (index !== -1) {
+    jobs.value[index] = updatedJob
+  }
+  selectedJobForReschedule.value = null
+  showRescheduleModal.value = false
 }
 
 const viewJob = (jobId: string) => {
@@ -203,9 +219,24 @@ const getStatusColor = (status: string) => {
               <IonIcon :icon="close" slot="start" />
               Decline
             </IonButton>
+            <IonButton fill="outline" @click="rescheduleJob(job)">
+              <IonIcon :icon="calendar" slot="start" />
+              {{ t('booking.actions.reschedule') }}
+            </IonButton>
             <IonButton color="success" @click="acceptJob(job.id)">
               <IonIcon :icon="checkmark" slot="start" />
               Accept
+            </IonButton>
+          </div>
+
+          <!-- Action Buttons for Accepted Jobs -->
+          <div v-else-if="job.status === 'accepted'" class="job-actions">
+            <IonButton fill="outline" @click="rescheduleJob(job)">
+              <IonIcon :icon="calendar" slot="start" />
+              {{ t('booking.actions.reschedule') }}
+            </IonButton>
+            <IonButton color="primary" @click="viewJob(job.id)">
+              Start Job
             </IonButton>
           </div>
         </div>
@@ -217,6 +248,15 @@ const getStatusColor = (status: string) => {
         <p v-else-if="filter === 'upcoming'">No upcoming jobs</p>
         <p v-else>No past jobs</p>
       </div>
+
+      <!-- Reschedule Modal -->
+      <RescheduleModal
+        v-if="selectedJobForReschedule"
+        v-model="showRescheduleModal"
+        :booking="selectedJobForReschedule"
+        user-role="provider"
+        @rescheduled="handleJobRescheduled"
+      />
     </IonContent>
   </IonPage>
 </template>
@@ -314,14 +354,16 @@ const getStatusColor = (status: string) => {
 
 .job-actions {
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--ion-border-color);
 }
 
 .job-actions ion-button {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 80px;
 }
 
 .empty-state {

@@ -31,6 +31,7 @@ const route = useRoute()
 const isLoading = ref(true)
 const booking = ref<typeof mockBookings[0] | null>(null)
 const showCancelSheet = ref(false)
+const showRescheduleModal = ref(false)
 
 // Load data
 onMounted(async () => {
@@ -103,9 +104,22 @@ const canCancel = computed(() => {
   return booking.value && ['pending', 'accepted'].includes(booking.value.status)
 })
 
+const canReschedule = computed(() => {
+  return booking.value && ['pending', 'accepted'].includes(booking.value.status)
+})
+
 const canRate = computed(() => {
   return booking.value?.status === 'completed'
 })
+
+const rescheduleBooking = () => {
+  showRescheduleModal.value = true
+}
+
+const handleRescheduled = (updatedBooking: typeof mockBookings[0]) => {
+  booking.value = updatedBooking
+  showRescheduleModal.value = false
+}
 
 const cancelSheetButtons = [
   {
@@ -229,6 +243,11 @@ const cancelSheetButtons = [
             {{ t('booking.actions.contact_provider') }}
           </IonButton>
 
+          <IonButton v-if="canReschedule" expand="block" fill="outline" @click="rescheduleBooking">
+            <IonIcon :icon="calendar" slot="start" />
+            {{ t('booking.actions.reschedule') }}
+          </IonButton>
+
           <IonButton v-if="canRate" expand="block" color="success" @click="rateService">
             <IonIcon :icon="star" slot="start" />
             {{ t('booking.actions.rate') }}
@@ -239,6 +258,15 @@ const cancelSheetButtons = [
             {{ t('booking.actions.cancel') }}
           </IonButton>
         </PageActions>
+
+        <!-- Reschedule Modal -->
+        <RescheduleModal
+          v-if="booking"
+          v-model="showRescheduleModal"
+          :booking="booking"
+          user-role="customer"
+          @rescheduled="handleRescheduled"
+        />
       </template>
 
       <!-- Not Found -->

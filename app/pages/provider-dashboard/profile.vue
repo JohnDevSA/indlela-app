@@ -27,6 +27,7 @@ import {
   flash,
 } from 'ionicons/icons'
 import { mockProviders } from '~/utils/mock-data'
+import { useProviderStore } from '~/stores/provider'
 
 definePageMeta({
   layout: 'provider',

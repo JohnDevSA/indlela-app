@@ -150,21 +150,19 @@ const completeOnboarding = async () => {
   isSubmitting.value = true
 
   try {
-    // Build the provider registration payload
+    // Build the provider onboarding payload (snake_case for API)
     const payload = {
-      name: formData.value.name,
-      email: formData.value.email || undefined,
-      idNumber: formData.value.idNumber,
+      id_number: formData.value.idNumber,
       bio: formData.value.bio || undefined,
       location: {
         township: formData.value.township,
         city: formData.value.city,
       },
-      serviceRadiusKm: formData.value.serviceRadius,
+      service_radius_km: formData.value.serviceRadius,
       services: formData.value.selectedServices.map(serviceId => {
         const service = availableServices.find(s => s.id === serviceId)
         return {
-          serviceId,
+          service_id: serviceId,
           price: service?.basePrice || 100,
           duration: 60, // Default 1 hour
         }
@@ -173,13 +171,13 @@ const completeOnboarding = async () => {
     }
 
     // Submit to API
-    const response = await post<{ data: { providerId: string } }>('/providers/register', payload)
+    const response = await post<{ provider: { id: string } }>('/provider/complete-onboarding', payload)
 
     // Update auth store with provider info
     authStore.completeOnboarding({
       name: formData.value.name,
       email: formData.value.email || undefined,
-      providerId: response.data.providerId,
+      providerId: response.provider.id,
     })
 
     await showToast(t('provider.registration_success') || 'Registration successful!', 'success')

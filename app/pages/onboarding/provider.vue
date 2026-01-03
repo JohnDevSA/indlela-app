@@ -9,6 +9,7 @@ import {
   IonSpinner,
   IonCheckbox,
   IonToggle,
+  toastController,
 } from '@ionic/vue'
 import {
   checkmarkCircle,
@@ -29,6 +30,18 @@ definePageMeta({
 const { t } = useI18n()
 const router = useRouter()
 const authStore = useAuthStore()
+const { post, getErrorMessage } = useApi()
+
+// Toast helper
+const showToast = async (message: string, color: 'success' | 'danger' = 'success') => {
+  const toast = await toastController.create({
+    message,
+    duration: 3000,
+    color,
+    position: 'top',
+  })
+  await toast.present()
+}
 
 // Onboarding steps
 const currentStep = ref(0)
@@ -136,16 +149,47 @@ const enabledDaysCount = computed(() => {
 const completeOnboarding = async () => {
   isSubmitting.value = true
 
-  // Simulate API call
-  await new Promise(resolve => setTimeout(resolve, 1500))
+  try {
+    // Build the provider registration payload
+    const payload = {
+      name: formData.value.name,
+      email: formData.value.email || undefined,
+      idNumber: formData.value.idNumber,
+      bio: formData.value.bio || undefined,
+      location: {
+        township: formData.value.township,
+        city: formData.value.city,
+      },
+      serviceRadiusKm: formData.value.serviceRadius,
+      services: formData.value.selectedServices.map(serviceId => {
+        const service = availableServices.find(s => s.id === serviceId)
+        return {
+          serviceId,
+          price: service?.basePrice || 100,
+          duration: 60, // Default 1 hour
+        }
+      }),
+      availability: formData.value.availability,
+    }
 
-  authStore.completeOnboarding({
-    name: formData.value.name,
-    email: formData.value.email || undefined,
-  })
+    // Submit to API
+    const response = await post<{ data: { providerId: string } }>('/providers/register', payload)
 
-  isSubmitting.value = false
-  router.push('/provider-dashboard')
+    // Update auth store with provider info
+    authStore.completeOnboarding({
+      name: formData.value.name,
+      email: formData.value.email || undefined,
+      providerId: response.data.providerId,
+    })
+
+    await showToast(t('provider.registration_success') || 'Registration successful!', 'success')
+    router.push('/provider-dashboard')
+  } catch (error) {
+    const message = getErrorMessage(error)
+    await showToast(message || 'Failed to complete registration. Please try again.', 'danger')
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 const skipOnboarding = () => {

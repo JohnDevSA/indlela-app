@@ -132,7 +132,9 @@
     "auto_accept_description": "Automatically accept bookings within your availability",
     "auto_accept_enabled": "Auto-accept is enabled",
     "auto_accept_disabled": "You'll manually accept each booking",
-    "instant_badge": "Instant"
+    "instant_badge": "Instant",
+    "registration_success": "Registration successful! Welcome to Indlela.",
+    "registration_failed": "Registration failed. Please try again."
   },
   "booking": {
     "title": "Booking",

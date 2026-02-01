@@ -6,9 +6,6 @@
 
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
   IonRefresher,
   IonRefresherContent,
@@ -18,6 +15,7 @@ import { FRESHNESS_THRESHOLDS } from '~/composables/useDataFreshness'
 
 definePageMeta({
   layout: 'default',
+  middleware: 'auth',
 })
 
 const { t } = useI18n()
@@ -82,13 +80,8 @@ const setFilter = (value: 'upcoming' | 'past') => {
 
 <template>
   <IonPage>
-    <IonHeader>
-      <IonToolbar color="primary">
-        <IonTitle>{{ t('nav.bookings') }}</IonTitle>
-      </IonToolbar>
-      <!-- Unified Offline/Sync Status Bar -->
-      <OfflineHeaderBar />
-    </IonHeader>
+    <!-- App Header -->
+    <AppHeader :title="t('nav.bookings')" />
 
     <IonContent :fullscreen="true">
       <IonRefresher slot="fixed" @ionRefresh="handleRefresh">

@@ -22,9 +22,11 @@ import {
   time,
 } from 'ionicons/icons'
 import { useAuthStore } from '~/stores/auth'
+import LocationSelector from '~/components/LocationSelector.vue'
 
 definePageMeta({
   layout: false,
+  middleware: 'auth',
 })
 
 const { t } = useI18n()
@@ -72,17 +74,41 @@ const formData = ref({
   },
 })
 
-// Mock services for selection
-const availableServices = [
-  { id: 'plumbing', name: 'Plumbing', icon: '🔧', basePrice: 150 },
-  { id: 'electrical', name: 'Electrical', icon: '⚡', basePrice: 200 },
-  { id: 'cleaning', name: 'Cleaning', icon: '🧹', basePrice: 100 },
-  { id: 'gardening', name: 'Gardening', icon: '🌱', basePrice: 120 },
-  { id: 'painting', name: 'Painting', icon: '🎨', basePrice: 180 },
-  { id: 'carpentry', name: 'Carpentry', icon: '🪚', basePrice: 200 },
-  { id: 'appliance-repair', name: 'Appliance Repair', icon: '🔌', basePrice: 150 },
-  { id: 'moving', name: 'Moving & Hauling', icon: '📦', basePrice: 300 },
-]
+// Services from API
+interface Service {
+  id: string
+  name: string
+  icon?: string
+  basePrice: number
+}
+
+const availableServices = ref<Service[]>([])
+const isLoadingServices = ref(true)
+
+// Fetch services from API
+const fetchServices = async () => {
+  isLoadingServices.value = true
+  try {
+    const { get } = useApi()
+    const response = await get<{ data: Array<{ id: string; name: string; icon?: string; base_price?: number }> }>('/services')
+    availableServices.value = response.data.map(s => ({
+      id: s.id,
+      name: s.name,
+      icon: s.icon || '🔧',
+      basePrice: s.base_price || 100,
+    }))
+  } catch (error) {
+    console.error('[Onboarding] Failed to fetch services:', error)
+    // Fallback to empty - user will need to retry
+    availableServices.value = []
+  } finally {
+    isLoadingServices.value = false
+  }
+}
+
+onMounted(() => {
+  fetchServices()
+})
 
 const steps = [
   { id: 'welcome', title: 'Become a Provider', icon: '🛠️' },
@@ -136,7 +162,7 @@ const isServiceSelected = (serviceId: string) => {
 }
 
 const selectedServicesDisplay = computed(() => {
-  return availableServices
+  return availableServices.value
     .filter(s => formData.value.selectedServices.includes(s.id))
     .map(s => s.name)
     .join(', ')
@@ -149,6 +175,13 @@ const enabledDaysCount = computed(() => {
 const completeOnboarding = async () => {
   isSubmitting.value = true
 
+  // Debug: Check auth state
+  console.log('[Onboarding] Auth state:', {
+    isAuthenticated: authStore.isAuthenticated,
+    token: authStore.token ? `${authStore.token.substring(0, 20)}...` : null,
+    user: authStore.user,
+  })
+
   try {
     // Build the provider onboarding payload (snake_case for API)
     const payload = {
@@ -160,7 +193,7 @@ const completeOnboarding = async () => {
       },
       service_radius_km: formData.value.serviceRadius,
       services: formData.value.selectedServices.map(serviceId => {
-        const service = availableServices.find(s => s.id === serviceId)
+        const service = availableServices.value.find(s => s.id === serviceId)
         return {
           service_id: serviceId,
           price: service?.basePrice || 100,
@@ -311,7 +344,14 @@ const dayLabels: Record<typeof days[number], string> = {
             <h1>Your Services</h1>
             <p>Select the services you offer.</p>
 
-            <div class="services-grid">
+            <!-- Loading state -->
+            <div v-if="isLoadingServices" class="loading-services">
+              <IonSpinner name="crescent" />
+              <p>Loading services...</p>
+            </div>
+
+            <!-- Services grid -->
+            <div v-else-if="availableServices.length > 0" class="services-grid">
               <button
                 v-for="service in availableServices"
                 :key="service.id"
@@ -328,7 +368,13 @@ const dayLabels: Record<typeof days[number], string> = {
               </button>
             </div>
 
-            <p class="selection-count">
+            <!-- No services available -->
+            <div v-else class="no-services">
+              <p>No services available. Please try again.</p>
+              <IonButton fill="outline" @click="fetchServices">Retry</IonButton>
+            </div>
+
+            <p v-if="!isLoadingServices && availableServices.length > 0" class="selection-count">
               {{ formData.selectedServices.length }} service(s) selected
             </p>
           </div>
@@ -339,23 +385,10 @@ const dayLabels: Record<typeof days[number], string> = {
             <h1>Service Area</h1>
             <p>Where do you provide your services?</p>
 
-            <div class="form-group">
-              <label>Township/Area *</label>
-              <IonInput
-                v-model="formData.township"
-                placeholder="e.g., Soweto, Khayelitsha"
-                class="onboarding-input"
-              />
-            </div>
-
-            <div class="form-group">
-              <label>City *</label>
-              <IonInput
-                v-model="formData.city"
-                placeholder="e.g., Johannesburg, Cape Town"
-                class="onboarding-input"
-              />
-            </div>
+            <LocationSelector
+              v-model:model-township="formData.township"
+              v-model:model-city="formData.city"
+            />
 
             <div class="form-group">
               <label>Service Radius: {{ formData.serviceRadius }}km</label>
@@ -371,11 +404,6 @@ const dayLabels: Record<typeof days[number], string> = {
                 <span>50km</span>
               </div>
             </div>
-
-            <button class="location-button">
-              <IonIcon :icon="location" />
-              Use my current location
-            </button>
           </div>
 
           <!-- Step 4: Availability -->
@@ -637,6 +665,29 @@ const dayLabels: Record<typeof days[number], string> = {
   opacity: 0.8;
 }
 
+/* Services Loading & Empty States */
+.loading-services,
+.no-services {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.loading-services ion-spinner {
+  --color: white;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 12px;
+}
+
+.no-services ion-button {
+  margin-top: 12px;
+}
+
 /* Services Grid */
 .services-grid {
   display: grid;
@@ -720,25 +771,7 @@ const dayLabels: Record<typeof days[number], string> = {
   margin-top: 6px;
 }
 
-.location-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 14px;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px dashed rgba(255, 255, 255, 0.5);
-  border-radius: 12px;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-  margin-top: 8px;
-}
-
-.location-button ion-icon {
-  font-size: 20px;
-}
+/* Location button styles moved to LocationSelector component */
 
 /* Availability */
 .availability-list {

@@ -7,6 +7,7 @@ import { IonPage, IonContent } from '@ionic/vue'
 
 definePageMeta({
   layout: false,
+  middleware: 'guest',
 })
 
 const { t } = useI18n()

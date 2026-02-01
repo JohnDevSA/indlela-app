@@ -1,5 +1,34 @@
 import { ofetch, type FetchOptions } from 'ofetch'
 import type { ApiError } from '~/types'
+import { useAuthStore } from '~/stores/auth'
+
+// Track if CSRF cookie has been fetched
+let csrfInitialized = false
+
+// Get XSRF token from cookie
+function getXsrfToken(): string | null {
+  if (typeof document === 'undefined') return null
+  const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/)
+  if (match) {
+    // Cookie value is URL encoded
+    return decodeURIComponent(match[1])
+  }
+  return null
+}
+
+// Initialize CSRF cookie from Laravel Sanctum
+async function initCsrf(baseURL: string): Promise<void> {
+  if (csrfInitialized) return
+
+  try {
+    await ofetch(`${baseURL}/sanctum/csrf-cookie`, {
+      credentials: 'include',
+    })
+    csrfInitialized = true
+  } catch (e) {
+    console.error('[API] Failed to fetch CSRF cookie:', e)
+  }
+}
 
 // Create configured API client
 export const createApiClient = (baseURL: string, getToken: () => string | null) => {
@@ -7,13 +36,18 @@ export const createApiClient = (baseURL: string, getToken: () => string | null) 
     baseURL: `${baseURL}/api/v1`,
     retry: 3,
     retryDelay: 1000,
+    credentials: 'include', // Include cookies for CSRF
 
     async onRequest({ options }) {
+      // Initialize CSRF token if not done yet
+      await initCsrf(baseURL)
+
       // Ensure headers object exists before spreading
       const existingHeaders = options.headers as Record<string, string> | undefined
 
       const token = getToken()
       const locale = useCookie('indlela_locale').value || 'en'
+      const xsrfToken = getXsrfToken()
 
       options.headers = {
         ...(existingHeaders || {}),
@@ -21,6 +55,7 @@ export const createApiClient = (baseURL: string, getToken: () => string | null) 
         'Content-Type': 'application/json',
         Accept: 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(xsrfToken ? { 'X-XSRF-TOKEN': xsrfToken } : {}),
       }
     },
 

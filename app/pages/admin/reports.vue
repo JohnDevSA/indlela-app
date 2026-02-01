@@ -7,6 +7,7 @@ import { download, calendar, trendingUp, people, cash, documentText } from 'ioni
 
 definePageMeta({
   layout: 'admin',
+  middleware: 'admin',
 })
 
 const selectedPeriod = ref('month')

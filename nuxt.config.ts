@@ -1,7 +1,13 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
-  devtools: { enabled: true },
+  devtools: {
+    enabled: true,
+
+    timeline: {
+      enabled: true,
+    },
+  },
 
   // Use app/ directory for source files
   srcDir: 'app/',
@@ -261,6 +267,8 @@ export default defineNuxtConfig({
       apiUrl: process.env.NUXT_PUBLIC_API_URL || 'http://localhost:8000',
       appName: 'Indlela',
       appVersion: '1.0.0',
+      // Set to true to use mock API calls (for offline dev without backend)
+      useMockApi: process.env.NUXT_PUBLIC_USE_MOCK_API === 'true',
     },
   },
 

@@ -2,6 +2,7 @@ import type {
   Provider,
   Service,
   ServiceCategory,
+  Review,
   PaginatedResponse,
   Coordinates,
 } from '~/types'
@@ -38,7 +39,7 @@ export function useProvider() {
     try {
       // Categories are usually small, always try API first
       if (isOnline.value) {
-        const response = await get<{ data: ServiceCategory[] }>('/services')
+        const response = await get<{ data: ServiceCategory[] }>('/services/categories')
         categories.value = response.data
       }
     } catch (e) {
@@ -50,8 +51,10 @@ export function useProvider() {
 
   /**
    * Fetch services with offline fallback
+   * @param categorySlug - Optional category slug to filter by (e.g., 'plumbing', 'cleaning')
+   * @param search - Optional search term
    */
-  const fetchServices = async (categoryId?: string): Promise<void> => {
+  const fetchServices = async (categorySlug?: string, search?: string): Promise<void> => {
     isLoading.value = true
     error.value = null
 
@@ -59,15 +62,18 @@ export function useProvider() {
       // Load from cache first
       const cached = await getCachedServices()
       if (cached.length > 0) {
-        services.value = categoryId
-          ? cached.filter(s => s.categoryId === categoryId)
+        services.value = categorySlug
+          ? cached.filter(s => s.categorySlug === categorySlug)
           : cached
       }
 
       // Fetch fresh if online
       if (isOnline.value) {
-        const params = categoryId ? { category_id: categoryId } : undefined
-        const response = await get<{ data: Service[] }>('/services/all', params)
+        const params: Record<string, string> = {}
+        if (categorySlug) params.category = categorySlug
+        if (search) params.search = search
+
+        const response = await get<{ data: Service[] }>('/services', Object.keys(params).length > 0 ? params : undefined)
         services.value = response.data
 
         // Update cache (store all services)
@@ -84,13 +90,12 @@ export function useProvider() {
 
   /**
    * Search providers with filters
+   * API supports: ?service=slug&lat=-26.1&lng=28.0&radius=10
    */
   const searchProviders = async (params: {
-    serviceId?: string
-    categoryId?: string
+    serviceSlug?: string
     location?: Coordinates
     radiusKm?: number
-    rating?: number
     page?: number
   }): Promise<void> => {
     isLoading.value = true
@@ -103,14 +108,10 @@ export function useProvider() {
         // Apply local filters to cached data
         let filtered = cached
 
-        if (params.serviceId) {
+        if (params.serviceSlug) {
           filtered = filtered.filter(p =>
-            p.services?.some(s => s.serviceId === params.serviceId)
+            p.services?.some(s => s.serviceSlug === params.serviceSlug)
           )
-        }
-
-        if (params.rating) {
-          filtered = filtered.filter(p => p.rating >= params.rating!)
         }
 
         providers.value = filtered
@@ -120,14 +121,12 @@ export function useProvider() {
       if (isOnline.value) {
         const queryParams: Record<string, unknown> = {}
 
-        if (params.serviceId) queryParams.service_id = params.serviceId
-        if (params.categoryId) queryParams.category_id = params.categoryId
+        if (params.serviceSlug) queryParams.service = params.serviceSlug
         if (params.location) {
           queryParams.lat = params.location.lat
           queryParams.lng = params.location.lng
         }
         if (params.radiusKm) queryParams.radius = params.radiusKm
-        if (params.rating) queryParams.min_rating = params.rating
         if (params.page) queryParams.page = params.page
 
         const response = await get<PaginatedResponse<Provider>>('/providers', queryParams)
@@ -193,24 +192,39 @@ export function useProvider() {
   }
 
   /**
-   * Get providers by service category
+   * Get providers by service slug
    */
-  const getProvidersByCategory = async (categoryId: string): Promise<void> => {
-    return searchProviders({ categoryId })
+  const getProvidersByService = async (serviceSlug: string): Promise<void> => {
+    return searchProviders({ serviceSlug })
   }
 
   /**
-   * Get providers by specific service
+   * Get all providers (no filters)
    */
-  const getProvidersByService = async (serviceId: string): Promise<void> => {
-    return searchProviders({ serviceId })
+  const getAllProviders = async (): Promise<void> => {
+    return searchProviders({})
   }
 
   /**
-   * Get top-rated providers
+   * Fetch provider reviews
+   * API: GET /providers/{provider}/reviews
    */
-  const getTopProviders = async (limit: number = 10): Promise<void> => {
-    return searchProviders({ rating: 4.5 })
+  const fetchProviderReviews = async (providerId: string): Promise<Review[]> => {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      if (isOnline.value) {
+        const response = await get<{ data: Review[] }>(`/providers/${providerId}/reviews`)
+        return response.data
+      }
+      return []
+    } catch (e) {
+      error.value = getErrorMessage(e)
+      return []
+    } finally {
+      isLoading.value = false
+    }
   }
 
   /**
@@ -219,7 +233,7 @@ export function useProvider() {
   const filterProviders = (filters: {
     minRating?: number
     maxDistance?: number
-    serviceId?: string
+    serviceSlug?: string
   }) => {
     return computed(() => {
       let filtered = providers.value
@@ -228,9 +242,9 @@ export function useProvider() {
         filtered = filtered.filter(p => p.rating >= filters.minRating!)
       }
 
-      if (filters.serviceId) {
+      if (filters.serviceSlug) {
         filtered = filtered.filter(p =>
-          p.services?.some(s => s.serviceId === filters.serviceId)
+          p.services?.some(s => s.serviceSlug === filters.serviceSlug)
         )
       }
 
@@ -277,10 +291,10 @@ export function useProvider() {
     fetchServices,
     searchProviders,
     fetchProvider,
+    fetchProviderReviews,
     getNearbyProviders,
-    getProvidersByCategory,
     getProvidersByService,
-    getTopProviders,
+    getAllProviders,
     filterProviders,
     sortProviders,
     clearError,

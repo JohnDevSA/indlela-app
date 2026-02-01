@@ -1,16 +1,12 @@
 <script setup lang="ts">
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
   IonSearchbar,
   IonList,
   IonItem,
   IonLabel,
   IonIcon,
-  IonChip,
   IonSkeletonText,
   IonRefresher,
   IonRefresherContent,
@@ -27,6 +23,7 @@ import {
 
 definePageMeta({
   layout: 'default',
+  middleware: 'auth',
 })
 
 const { t } = useI18n()
@@ -113,20 +110,21 @@ onMounted(() => {
 
 <template>
   <IonPage>
-    <IonHeader>
-      <IonToolbar color="primary">
-        <IonTitle>{{ t('services.title') }}</IonTitle>
-      </IonToolbar>
-      <IonToolbar color="primary">
-        <IonSearchbar
-          :value="searchQuery"
-          :placeholder="t('common.search')"
-          @ionInput="handleSearch"
-          show-cancel-button="focus"
-          animated
-        />
-      </IonToolbar>
-    </IonHeader>
+    <!-- App Header -->
+    <AppHeader :title="t('services.title')">
+      <template #below>
+        <div class="search-wrapper">
+          <IonSearchbar
+            :value="searchQuery"
+            :placeholder="t('common.search')"
+            @ionInput="handleSearch"
+            show-cancel-button="focus"
+            animated
+            class="search-bar"
+          />
+        </div>
+      </template>
+    </AppHeader>
 
     <IonContent :fullscreen="true">
       <IonRefresher slot="fixed" @ionRefresh="handleRefresh">
@@ -484,5 +482,21 @@ onMounted(() => {
   text-align: center;
   padding: 48px 24px;
   color: var(--ion-color-medium);
+}
+
+/* Search wrapper */
+.search-wrapper {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary-500);
+}
+
+.search-bar {
+  --background: rgba(255, 255, 255, 0.15);
+  --color: white;
+  --placeholder-color: rgba(255, 255, 255, 0.7);
+  --icon-color: rgba(255, 255, 255, 0.7);
+  --clear-button-color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  padding: 0;
 }
 </style>

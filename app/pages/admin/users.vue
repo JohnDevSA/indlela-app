@@ -8,6 +8,7 @@ import { person, ellipsisVertical, checkmarkCircle, closeCircle, mail, call } fr
 
 definePageMeta({
   layout: 'admin',
+  middleware: 'admin',
 })
 
 const searchQuery = ref('')

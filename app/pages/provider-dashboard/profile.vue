@@ -31,6 +31,7 @@ import { useProviderStore } from '~/stores/provider'
 
 definePageMeta({
   layout: 'provider',
+  middleware: 'provider',
 })
 
 const { t } = useI18n()

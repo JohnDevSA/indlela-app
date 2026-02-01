@@ -6,9 +6,6 @@
 
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
   IonSearchbar,
   IonRefresher,
@@ -23,6 +20,7 @@ import { FRESHNESS_THRESHOLDS } from '~/composables/useDataFreshness'
 
 definePageMeta({
   layout: 'default',
+  middleware: 'auth',
 })
 
 const { t } = useI18n()
@@ -78,23 +76,21 @@ onMounted(() => {
 
 <template>
   <IonPage>
-    <IonHeader>
-      <IonToolbar color="primary">
-        <IonTitle>{{ t('home.welcome') }}</IonTitle>
-      </IonToolbar>
-      <IonToolbar color="primary">
-        <IonSearchbar
-          v-model="searchQuery"
-          :placeholder="t('home.search_placeholder')"
-          show-cancel-button="focus"
-          animated
-          class="search-bar"
-          @ionChange="searchProviders"
-        />
-      </IonToolbar>
-      <!-- Unified Offline/Sync Status Bar -->
-      <OfflineHeaderBar />
-    </IonHeader>
+    <!-- App Header with Logo -->
+    <AppHeader :show-logo="true" :show-search="true">
+      <template #below>
+        <div class="search-wrapper">
+          <IonSearchbar
+            v-model="searchQuery"
+            :placeholder="t('home.search_placeholder')"
+            show-cancel-button="focus"
+            animated
+            class="search-bar"
+            @ionChange="searchProviders"
+          />
+        </div>
+      </template>
+    </AppHeader>
 
     <IonContent :fullscreen="true">
       <IonRefresher slot="fixed" @ionRefresh="handleRefresh">
@@ -312,6 +308,12 @@ onMounted(() => {
   margin-top: var(--space-2);
 }
 
+/* Search wrapper */
+.search-wrapper {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary-500);
+}
+
 /* Search bar customization */
 .search-bar {
   --background: rgba(255, 255, 255, 0.15);
@@ -319,6 +321,8 @@ onMounted(() => {
   --placeholder-color: rgba(255, 255, 255, 0.7);
   --icon-color: rgba(255, 255, 255, 0.7);
   --clear-button-color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  padding: 0;
 }
 
 /* Dark mode */

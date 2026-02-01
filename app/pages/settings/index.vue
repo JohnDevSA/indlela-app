@@ -13,6 +13,7 @@ import { useAuthStore } from '~/stores/auth'
 
 definePageMeta({
   layout: 'default',
+  middleware: 'auth',
 })
 
 const { t, locale, setLocale, locales } = useI18n()

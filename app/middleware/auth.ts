@@ -2,21 +2,22 @@ import { useAuthStore } from '~/stores/auth'
 
 /**
  * Auth middleware - requires authentication
- * Redirects to login if not authenticated
- * In dev mode: allows access for UI development
+ * Redirects to auth landing if not authenticated
  */
 export default defineNuxtRouteMiddleware((to) => {
-  // Skip auth check in dev mode for easier UI development
-  if (process.dev) {
-    return
-  }
-
   const authStore = useAuthStore()
 
   if (!authStore.isAuthenticated) {
-    return navigateTo('/auth/login', {
+    return navigateTo('/auth/', {
       replace: true,
-      redirectCode: 401,
     })
+  }
+
+  // Check if user needs onboarding
+  if (authStore.user && !authStore.user.onboardingCompleted) {
+    const onboardingPath = authStore.isProvider ? '/onboarding/provider' : '/onboarding/customer'
+    if (to.path !== onboardingPath) {
+      return navigateTo(onboardingPath, { replace: true })
+    }
   }
 })

@@ -2,53 +2,53 @@
 /**
  * Welcome Page - First-time user landing
  * Entry point for the auth flow with value proposition
+ * Emphasizes community, trust, and offline-first capabilities
  */
 import { IonPage, IonContent } from '@ionic/vue'
 
 definePageMeta({
   layout: false,
+  middleware: 'guest',
 })
 
 const { t } = useI18n()
 const router = useRouter()
 const { haptic } = useAnimation()
 
-// Feature highlights
-const features = [
+// Primary value propositions for township users
+const benefits = [
   {
-    icon: 'heroicons:magnifying-glass',
-    title: 'Find Services',
-    description: 'Discover trusted providers in your community',
+    icon: 'heroicons:users',
+    title: t('auth.welcome.benefit_community_title'),
+    description: t('auth.welcome.benefit_community_desc'),
   },
   {
-    icon: 'heroicons:calendar-days',
-    title: 'Book Easily',
-    description: 'Schedule at your convenience, even offline',
+    icon: 'heroicons:signal-slash',
+    title: t('auth.welcome.benefit_offline_title'),
+    description: t('auth.welcome.benefit_offline_desc'),
   },
   {
     icon: 'heroicons:shield-check',
-    title: 'Safe & Secure',
-    description: 'Verified providers you can trust',
+    title: t('auth.welcome.benefit_verified_title'),
+    description: t('auth.welcome.benefit_verified_desc'),
+  },
+  {
+    icon: 'heroicons:banknotes',
+    title: t('auth.welcome.benefit_earnings_title'),
+    description: t('auth.welcome.benefit_earnings_desc'),
   },
 ]
 
-// Current feature for carousel (simple auto-rotate)
-const currentFeature = ref(0)
-let featureInterval: ReturnType<typeof setInterval> | null = null
-
-onMounted(() => {
-  featureInterval = setInterval(() => {
-    currentFeature.value = (currentFeature.value + 1) % features.length
-  }, 3000)
-})
-
-onUnmounted(() => {
-  if (featureInterval) clearInterval(featureInterval)
-})
-
-const getStarted = () => {
+const getStarted = (role?: 'customer' | 'provider') => {
   haptic('light')
-  router.push('/auth/role')
+  if (role) {
+    // Store role and skip role selection page
+    sessionStorage.setItem('indlela_selected_role', role)
+    router.push('/auth/login')
+  } else {
+    // Go to role selection page
+    router.push('/auth/role')
+  }
 }
 
 const signIn = () => {
@@ -71,60 +71,75 @@ const signIn = () => {
           </div>
 
           <!-- App Name & Tagline -->
-          <h1 class="app-name">Indlela</h1>
-          <p class="tagline">{{ t('auth.tagline') }}</p>
+          <h1 class="app-name">{{ t('app.name') }}</h1>
+          <p class="tagline">{{ t('auth.welcome.tagline') }}</p>
+
+          <!-- Offline Badge -->
+          <div class="offline-badge">
+            <Icon name="heroicons:signal-slash" class="badge-icon" />
+            <span>{{ t('auth.welcome.works_offline') }}</span>
+          </div>
         </div>
 
-        <!-- Features Carousel -->
-        <div class="features-section">
-          <div class="feature-carousel">
-            <TransitionGroup name="feature-fade">
-              <div
-                v-for="(feature, index) in features"
-                v-show="currentFeature === index"
-                :key="feature.title"
-                class="feature-card"
-              >
-                <div class="feature-icon-wrapper">
-                  <Icon :name="feature.icon" class="feature-icon" />
-                </div>
-                <h3 class="feature-title">{{ feature.title }}</h3>
-                <p class="feature-description">{{ feature.description }}</p>
+        <!-- Benefits Grid - Static to save data -->
+        <div class="benefits-section">
+          <div class="benefits-grid">
+            <div
+              v-for="(benefit, index) in benefits"
+              :key="benefit.title"
+              class="benefit-card"
+              :style="{ animationDelay: `${index * 100}ms` }"
+            >
+              <div class="benefit-icon-wrapper">
+                <Icon :name="benefit.icon" class="benefit-icon" />
               </div>
-            </TransitionGroup>
-          </div>
-
-          <!-- Dots Indicator -->
-          <div class="dots-indicator">
-            <button
-              v-for="(_, index) in features"
-              :key="index"
-              :class="['dot', { active: currentFeature === index }]"
-              @click="currentFeature = index"
-            />
+              <h3 class="benefit-title">{{ benefit.title }}</h3>
+              <p class="benefit-description">{{ benefit.description }}</p>
+            </div>
           </div>
         </div>
 
-        <!-- CTA Section -->
+        <!-- CTA Section with Quick Actions -->
         <div class="cta-section">
-          <UiButton
-            variant="primary"
-            size="lg"
-            :full-width="true"
-            class="get-started-btn"
-            @click="getStarted"
-          >
-            Get Started
-          </UiButton>
+          <!-- Primary Action Buttons -->
+          <div class="quick-actions">
+            <UiButton
+              variant="primary"
+              size="lg"
+              :full-width="true"
+              class="customer-btn"
+              @click="getStarted('customer')"
+            >
+              <template #icon-left>
+                <Icon name="heroicons:magnifying-glass-circle" />
+              </template>
+              {{ t('auth.welcome.find_services') }}
+            </UiButton>
 
+            <UiButton
+              variant="outline"
+              size="lg"
+              :full-width="true"
+              class="provider-btn"
+              @click="getStarted('provider')"
+            >
+              <template #icon-left>
+                <Icon name="heroicons:briefcase" />
+              </template>
+              {{ t('auth.welcome.offer_services') }}
+            </UiButton>
+          </div>
+
+          <!-- Sign In Link -->
           <button class="sign-in-link" @click="signIn">
-            Already have an account? <span>Sign in</span>
+            {{ t('auth.welcome.already_have_account') }}
+            <span>{{ t('auth.welcome.sign_in') }}</span>
           </button>
         </div>
 
         <!-- Footer -->
         <div class="welcome-footer">
-          <p class="footer-text">By continuing, you agree to our Terms of Service</p>
+          <p class="footer-text">{{ t('auth.footer_text') }}</p>
         </div>
       </div>
     </IonContent>
@@ -148,7 +163,7 @@ const signIn = () => {
 /* Hero Section */
 .hero-section {
   text-align: center;
-  padding: var(--space-8) 0 var(--space-6);
+  padding: var(--space-6) 0 var(--space-4);
 }
 
 .logo-container {
@@ -166,6 +181,18 @@ const signIn = () => {
   align-items: center;
   justify-content: center;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  animation: logoFadeIn 0.6s ease-out;
+}
+
+@keyframes logoFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .logo-icon {
@@ -180,113 +207,116 @@ const signIn = () => {
   color: white;
   margin: 0 0 var(--space-2);
   letter-spacing: -0.5px;
+  animation: fadeInUp 0.6s ease-out 0.1s both;
 }
 
 .tagline {
   font-size: var(--text-lg);
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0 0 var(--space-4);
   font-weight: var(--font-medium);
+  line-height: var(--leading-relaxed);
+  animation: fadeInUp 0.6s ease-out 0.2s both;
 }
 
-/* Features Section */
-.features-section {
+/* Offline Badge */
+.offline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-full);
+  color: white;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  animation: fadeInUp 0.6s ease-out 0.3s both;
+}
+
+.badge-icon {
+  width: 16px;
+  height: 16px;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Benefits Section */
+.benefits-section {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: var(--space-8) 0;
+  padding: var(--space-6) 0;
 }
 
-.feature-carousel {
-  position: relative;
-  min-height: 180px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
 }
 
-.feature-card {
-  position: absolute;
-  width: 100%;
-  text-align: center;
-  padding: var(--space-6);
-  background: rgba(255, 255, 255, 0.15);
+.benefit-card {
+  padding: var(--space-4);
+  background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(10px);
-  border-radius: var(--radius-2xl);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-xl);
+  text-align: center;
+  animation: benefitFadeIn 0.5s ease-out both;
 }
 
-.feature-icon-wrapper {
-  width: 64px;
-  height: 64px;
-  background: white;
-  border-radius: var(--radius-xl);
+@keyframes benefitFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.benefit-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto var(--space-4);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  margin: 0 auto var(--space-3);
 }
 
-.feature-icon {
-  width: 32px;
-  height: 32px;
-  color: var(--color-primary-600);
+.benefit-icon {
+  width: 24px;
+  height: 24px;
+  color: white;
 }
 
-.feature-title {
-  font-size: var(--text-xl);
+.benefit-title {
+  font-size: var(--text-sm);
   font-weight: var(--font-bold);
   color: white;
-  margin: 0 0 var(--space-2);
+  margin: 0 0 var(--space-1);
+  line-height: var(--leading-tight);
 }
 
-.feature-description {
-  font-size: var(--text-base);
-  color: rgba(255, 255, 255, 0.9);
+.benefit-description {
+  font-size: var(--text-xs);
+  color: rgba(255, 255, 255, 0.85);
   margin: 0;
-  line-height: var(--leading-relaxed);
-}
-
-/* Feature transition */
-.feature-fade-enter-active,
-.feature-fade-leave-active {
-  transition: all 0.4s ease;
-}
-
-.feature-fade-enter-from {
-  opacity: 0;
-  transform: translateX(20px);
-}
-
-.feature-fade-leave-to {
-  opacity: 0;
-  transform: translateX(-20px);
-}
-
-/* Dots Indicator */
-.dots-indicator {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-2);
-  margin-top: var(--space-6);
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.4);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: all var(--duration-normal) var(--ease-out);
-}
-
-.dot.active {
-  width: 24px;
-  background: white;
+  line-height: var(--leading-snug);
 }
 
 /* CTA Section */
@@ -294,29 +324,60 @@ const signIn = () => {
   padding: var(--space-4) 0;
 }
 
-.get-started-btn {
-  --background: white;
-  --color: var(--color-primary-600);
-  font-weight: var(--font-bold);
-  font-size: var(--text-lg);
+.quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.customer-btn {
+  background: white;
+  color: var(--color-primary-600);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
 }
 
-.get-started-btn:deep(.ui-button) {
-  background: white !important;
-  color: var(--color-primary-600) !important;
+.customer-btn:deep(.ui-button) {
+  background: white;
+  color: var(--color-primary-600);
+}
+
+.customer-btn:deep(.ui-button:hover) {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 6px 32px rgba(0, 0, 0, 0.25);
+}
+
+.provider-btn {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: white;
+}
+
+.provider-btn:deep(.ui-button) {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.5);
+  color: white;
+}
+
+.provider-btn:deep(.ui-button:hover) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: white;
 }
 
 .sign-in-link {
   display: block;
   width: 100%;
-  margin-top: var(--space-4);
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.85);
   font-size: var(--text-base);
   cursor: pointer;
-  padding: var(--space-2);
+  padding: var(--space-3);
+  min-height: var(--touch-target-min);
+  transition: color var(--duration-normal);
+}
+
+.sign-in-link:hover {
+  color: white;
 }
 
 .sign-in-link span {
@@ -336,12 +397,24 @@ const signIn = () => {
   font-size: var(--text-xs);
   color: rgba(255, 255, 255, 0.6);
   margin: 0;
+  line-height: var(--leading-relaxed);
 }
 
-/* Responsive */
-@media (max-height: 600px) {
+/* Responsive - Small screens */
+@media (max-width: 374px) {
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .benefit-card {
+    padding: var(--space-3);
+  }
+}
+
+/* Responsive - Short screens */
+@media (max-height: 700px) {
   .hero-section {
-    padding: var(--space-4) 0;
+    padding: var(--space-4) 0 var(--space-3);
   }
 
   .logo {
@@ -358,25 +431,56 @@ const signIn = () => {
     font-size: 32px;
   }
 
-  .features-section {
+  .tagline {
+    font-size: var(--text-base);
+  }
+
+  .benefits-section {
     padding: var(--space-4) 0;
   }
 
-  .feature-carousel {
-    min-height: 150px;
+  .benefit-card {
+    padding: var(--space-3);
+  }
+
+  .benefit-icon-wrapper {
+    width: 40px;
+    height: 40px;
+  }
+
+  .benefit-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Very short screens - prioritize CTA */
+@media (max-height: 600px) {
+  .benefits-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+  }
+
+  .benefit-description {
+    display: none;
   }
 }
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .feature-fade-enter-active,
-  .feature-fade-leave-active {
-    transition: opacity 0.2s;
+  .logo,
+  .app-name,
+  .tagline,
+  .offline-badge,
+  .benefit-card {
+    animation: none;
   }
+}
 
-  .feature-fade-enter-from,
-  .feature-fade-leave-to {
-    transform: none;
+/* Dark mode support (if system preference) */
+@media (prefers-color-scheme: dark) {
+  .welcome-content {
+    --background: linear-gradient(180deg, #00A86B 0%, #006B42 100%);
   }
 }
 </style>

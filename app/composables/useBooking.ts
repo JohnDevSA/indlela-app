@@ -207,36 +207,37 @@ export function useBooking() {
   }
 
   /**
-   * Update booking status (accept, start, complete, cancel)
+   * Update booking status
+   * API: PATCH /bookings/{booking}/status
+   * Body: { status: 'accepted' | 'in_progress' | 'completed' | 'cancelled', reason?: string }
    */
   const updateStatus = async (
     id: string,
-    newStatus: 'accept' | 'start' | 'complete' | 'cancel',
+    newStatus: BookingStatus,
     reason?: string
   ): Promise<boolean> => {
     isLoading.value = true
     error.value = null
 
-    const statusMap: Record<string, BookingStatus> = {
-      accept: 'accepted',
-      start: 'in_progress',
-      complete: 'completed',
-      cancel: 'cancelled',
-    }
-
     try {
-      // Optimistic update
+      // Store original for rollback
       const index = bookings.value.findIndex(b => b.id === id)
+      const originalStatus = index !== -1 ? bookings.value[index].status : null
+
+      // Optimistic update
       if (index !== -1) {
-        bookings.value[index].status = statusMap[newStatus]
-        if (reason && newStatus === 'cancel') {
+        bookings.value[index].status = newStatus
+        if (reason && newStatus === 'cancelled') {
           bookings.value[index].cancellationReason = reason
         }
       }
 
       if (isOnline.value) {
-        const body = reason ? { reason } : undefined
-        await post(`/bookings/${id}/${newStatus}`, body)
+        const { patch } = useApi()
+        const body: { status: BookingStatus; reason?: string } = { status: newStatus }
+        if (reason) body.reason = reason
+
+        await patch(`/bookings/${id}/status`, body)
         return true
       } else {
         // Queue for later sync
@@ -244,9 +245,12 @@ export function useBooking() {
         return true
       }
     } catch (e) {
-      // Rollback
+      // Rollback to original status
+      const index = bookings.value.findIndex(b => b.id === id)
+      if (index !== -1 && originalStatus) {
+        bookings.value[index].status = originalStatus
+      }
       error.value = getErrorMessage(e)
-      await fetchBookings()
       return false
     } finally {
       isLoading.value = false
@@ -254,10 +258,35 @@ export function useBooking() {
   }
 
   // Convenience methods for status updates
-  const acceptBooking = (id: string) => updateStatus(id, 'accept')
-  const startBooking = (id: string) => updateStatus(id, 'start')
-  const completeBooking = (id: string) => updateStatus(id, 'complete')
-  const cancelBooking = (id: string, reason?: string) => updateStatus(id, 'cancel', reason)
+  const acceptBooking = (id: string) => updateStatus(id, 'accepted')
+  const startBooking = (id: string) => updateStatus(id, 'in_progress')
+  const completeBooking = (id: string) => updateStatus(id, 'completed')
+  const cancelBooking = (id: string, reason?: string) => updateStatus(id, 'cancelled', reason)
+
+  /**
+   * Create payment checkout for a booking
+   * API: POST /bookings/{booking}/checkout
+   * Returns checkout URL for Yoco payment
+   */
+  const createCheckout = async (bookingId: string): Promise<{ checkoutUrl: string } | null> => {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      if (!isOnline.value) {
+        error.value = 'Payment requires an internet connection'
+        return null
+      }
+
+      const response = await post<{ data: { checkout_url: string } }>(`/bookings/${bookingId}/checkout`)
+      return { checkoutUrl: response.data.checkout_url }
+    } catch (e) {
+      error.value = getErrorMessage(e)
+      return null
+    } finally {
+      isLoading.value = false
+    }
+  }
 
   /**
    * Clear error state
@@ -309,10 +338,12 @@ export function useBooking() {
     fetchBooking,
     createBooking,
     updateBooking,
+    updateStatus,
     acceptBooking,
     startBooking,
     completeBooking,
     cancelBooking,
+    createCheckout,
     getBookingsByStatus,
     clearError,
   }

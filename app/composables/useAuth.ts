@@ -1,20 +1,83 @@
 import type { User, AuthResponse } from '~/types'
 import { useAuthStore, mockUsers, type MockUserType } from '~/stores/auth'
+import { getErrorMessage } from '~/utils/api'
+
+/**
+ * Transform API user response (snake_case) to User type (camelCase)
+ */
+function transformApiUser(apiUser: Record<string, unknown>): User {
+  const role = (apiUser.role as 'customer' | 'provider' | 'admin') || 'customer'
+  const hasName = !!(apiUser.name && String(apiUser.name).trim().length > 0 && String(apiUser.name) !== 'User')
+  const provider = apiUser.provider as Record<string, unknown> | null
+  const hasProviderId = !!(provider && provider.id)
+
+  // Check if provider has completed their profile (not just a skeleton record)
+  // A complete provider profile has: location AND availability set
+  const providerOnboardingComplete = !!(
+    provider &&
+    provider.id &&
+    provider.location &&
+    provider.availability
+  )
+
+  // Determine onboarding status based on role:
+  // - Providers: must have a COMPLETE provider profile (location + availability)
+  // - Admins: always considered onboarded
+  // - Customers: must have a real name (not default "User")
+  let onboardingCompleted = false
+  if (role === 'admin') {
+    onboardingCompleted = true
+  } else if (role === 'provider') {
+    onboardingCompleted = providerOnboardingComplete
+  } else {
+    onboardingCompleted = hasName
+  }
+
+  return {
+    id: String(apiUser.id),
+    phone: String(apiUser.phone || ''),
+    email: apiUser.email ? String(apiUser.email) : undefined,
+    name: String(apiUser.name || ''),
+    role,
+    locale: (apiUser.locale as 'en' | 'zu' | 'xh' | 'af' | 'st' | 'tn') || 'en',
+    avatar: apiUser.avatar ? String(apiUser.avatar) : undefined,
+    phoneVerifiedAt: apiUser.phone_verified_at ? String(apiUser.phone_verified_at) : undefined,
+    emailVerifiedAt: apiUser.email_verified_at ? String(apiUser.email_verified_at) : undefined,
+    onboardingCompleted,
+    providerId: hasProviderId ? String(provider!.id) : undefined,
+    createdAt: String(apiUser.created_at || new Date().toISOString()),
+    updatedAt: String(apiUser.updated_at || apiUser.created_at || new Date().toISOString()),
+  }
+}
+
+/**
+ * Transform API auth response to AuthResponse type
+ */
+function transformAuthResponse(apiResponse: Record<string, unknown>): AuthResponse {
+  const user = transformApiUser(apiResponse.user as Record<string, unknown>)
+  return {
+    token: String(apiResponse.token || ''),
+    user,
+    isNewUser: !user.onboardingCompleted,
+  }
+}
 
 /**
  * Composable for authentication operations
- * In dev mode, uses mock data without API calls
- * In production, handles OTP-based phone authentication
+ * Uses mock data when useMockApi is enabled, otherwise makes real API calls
+ * Set NUXT_PUBLIC_USE_MOCK_API=true to use mock mode
  */
 export function useAuth() {
   const authStore = useAuthStore()
-  const isDev = process.dev
+  const config = useRuntimeConfig()
+  // Use mock API only when explicitly enabled via NUXT_PUBLIC_USE_MOCK_API=true
+  const useMock = config.public.useMockApi as boolean
 
-  // State
-  const isLoading = ref(false)
-  const error = ref<string | null>(null)
-  const otpSent = ref(false)
-  const otpPhone = ref<string | null>(null)
+  // State - use useState for shared state across components
+  const isLoading = useState<boolean>('auth-loading', () => false)
+  const error = useState<string | null>('auth-error', () => null)
+  const otpSent = useState<boolean>('auth-otp-sent', () => false)
+  const otpPhone = useState<string | null>('auth-otp-phone', () => null)
 
   /**
    * Get the selected role from session storage (set during onboarding flow)
@@ -91,23 +154,24 @@ export function useAuth() {
         return false
       }
 
-      if (isDev) {
-        // Dev mode: simulate delay and success
+      if (useMock) {
+        // Mock mode: simulate delay and success
         await new Promise(resolve => setTimeout(resolve, 500))
         otpSent.value = true
         otpPhone.value = normalized
         return true
       }
 
-      // Production: make API call
+      // Real API call
       const { post } = useApi()
-      await post('/auth/request-otp', { phone: normalized })
+      await post('/auth/send-otp', { phone: normalized })
 
       otpSent.value = true
       otpPhone.value = normalized
       return true
     } catch (e) {
-      error.value = 'Failed to send OTP. Please try again.'
+      console.error('[Auth] Send OTP error:', e)
+      error.value = getErrorMessage(e) || 'Failed to send OTP. Please try again.'
       return false
     } finally {
       isLoading.value = false
@@ -129,11 +193,11 @@ export function useAuth() {
     }
 
     try {
-      if (isDev) {
-        // Dev mode: simulate delay and login
+      if (useMock) {
+        // Mock mode: simulate delay and login
         await new Promise(resolve => setTimeout(resolve, 500))
 
-        // Any 6-digit OTP works in dev mode
+        // Any 6-digit OTP works in mock mode
         if (otp.length === 6) {
           // Use the role selected during onboarding, with fallback to phone-based detection
           const selectedRole = getSelectedRole()
@@ -166,15 +230,17 @@ export function useAuth() {
         }
       }
 
-      // Production: make API call
+      // Real API call
       const { post } = useApi()
-      const response = await post<{ data: AuthResponse }>('/auth/verify-otp', {
+      const apiResponse = await post<Record<string, unknown>>('/auth/verify-otp', {
         phone: otpPhone.value,
         otp,
         role: getSelectedRole(), // Send selected role to backend
       })
 
-      authStore.setAuth(response.data)
+      // Transform API response (snake_case) to our types (camelCase)
+      const authData = transformAuthResponse(apiResponse)
+      authStore.setAuth(authData)
 
       // Clear selected role after successful login
       clearSelectedRole()
@@ -219,7 +285,7 @@ export function useAuth() {
   const fetchUser = async (): Promise<User | null> => {
     if (!authStore.isAuthenticated) return null
 
-    if (isDev) {
+    if (useMock) {
       return authStore.user
     }
 
@@ -248,7 +314,7 @@ export function useAuth() {
     error.value = null
 
     try {
-      if (isDev) {
+      if (useMock) {
         await new Promise(resolve => setTimeout(resolve, 300))
         if (authStore.user) {
           authStore.setUser({ ...authStore.user, ...data } as User)
@@ -283,7 +349,7 @@ export function useAuth() {
     isLoading.value = true
 
     try {
-      if (!isDev && authStore.isAuthenticated) {
+      if (!useMock && authStore.isAuthenticated) {
         const { post } = useApi()
         await post('/auth/logout')
       }

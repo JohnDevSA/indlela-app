@@ -9,6 +9,7 @@ import { mockBookings } from '~/utils/mock-data'
 
 definePageMeta({
   layout: 'admin',
+  middleware: 'admin',
 })
 
 const searchQuery = ref('')

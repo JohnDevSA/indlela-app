@@ -67,21 +67,27 @@ function handleClick(event: MouseEvent) {
       <Icon name="lucide:loader-2" class="animate-spin" />
     </span>
 
-    <!-- Icon left -->
+    <!-- Icon left (slot takes priority over prop) -->
+    <span v-if="slots['icon-left'] && !loading" class="ui-button__icon">
+      <slot name="icon-left" />
+    </span>
     <Icon
-      v-if="icon && iconPosition === 'left' && !loading"
+      v-else-if="icon && iconPosition === 'left' && !loading"
       :name="icon"
       class="ui-button__icon"
     />
 
     <!-- Content -->
-    <span v-if="$slots.default" class="ui-button__content">
+    <span v-if="slots.default" class="ui-button__content">
       <slot />
     </span>
 
-    <!-- Icon right -->
+    <!-- Icon right (slot takes priority over prop) -->
+    <span v-if="slots['icon-right'] && !loading" class="ui-button__icon">
+      <slot name="icon-right" />
+    </span>
     <Icon
-      v-if="icon && iconPosition === 'right' && !loading"
+      v-else-if="icon && iconPosition === 'right' && !loading"
       :name="icon"
       class="ui-button__icon"
     />

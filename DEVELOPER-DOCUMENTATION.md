@@ -1,7 +1,7 @@
 # Indlela Platform - Developer Documentation
 
-> **Version:** 1.0  
-> **Last Updated:** November 2025  
+> **Version:** 1.1
+> **Last Updated:** December 2025
 > **Target Stack:** Laravel 12 + Nuxt 4 + Ionic 8 + Capacitor 6
 
 ---
@@ -883,6 +883,14 @@ class EnsureProviderVerified
 ### Strategy Overview
 
 The offline-first approach ensures users can browse providers, create bookings, and update job status even without connectivity. Changes are queued locally and synchronized when online.
+
+> **Note (v1.1):** The frontend implementation includes additional robustness features not shown in the simplified examples below:
+> - **Sync locking:** Promise-based lock prevents concurrent sync operations
+> - **Debounced status changes:** 500ms debounce on online/offline events prevents rapid-fire syncs
+> - **Retriable vs non-retriable errors:** 4xx client errors fail immediately; 5xx/network errors retry up to 5 times
+> - **Stale data indicators:** `useDataFreshness` composable shows when cached data is outdated
+> - **Centralized logging:** `logger.ts` utility provides structured logging with module-specific child loggers
+> - **Privacy cleanup:** Offline data is cleared on logout to protect user privacy on shared devices
 
 ### Frontend: IndexedDB Queue
 

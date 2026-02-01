@@ -142,11 +142,19 @@ const handleSubmit = async () => {
 
   if (success) {
     haptic('success')
-    // Navigate based on user status
     const user = authStore.user
+    const selectedRole = sessionStorage.getItem('indlela_selected_role')
+
+    // User needs onboarding - redirect based on selected role or API role
     if (user && !user.onboardingCompleted) {
-      router.replace(user.role === 'provider' ? '/onboarding/provider' : '/onboarding/customer')
-    } else if (authStore.isProvider) {
+      // Use selected role from welcome page, fallback to API role
+      const targetRole = selectedRole || user.role
+      router.replace(targetRole === 'provider' ? '/onboarding/provider' : '/onboarding/customer')
+      return
+    }
+
+    // Fully onboarded users - redirect to appropriate dashboard
+    if (authStore.isProvider) {
       router.replace('/provider-dashboard')
     } else if (authStore.isAdmin) {
       router.replace('/admin')

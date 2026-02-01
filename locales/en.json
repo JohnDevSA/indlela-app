@@ -73,7 +73,23 @@
     "wrong_number": "Wrong number?",
     "logout": "Log Out",
     "logout_confirm": "Log Out?",
-    "logout_message": "Are you sure you want to log out of your account?"
+    "logout_message": "Are you sure you want to log out of your account?",
+    "welcome": {
+      "tagline": "Your community's trusted service marketplace",
+      "works_offline": "Works Offline",
+      "benefit_community_title": "Your Community",
+      "benefit_community_desc": "Trusted local service providers near you",
+      "benefit_offline_title": "Works Offline",
+      "benefit_offline_desc": "Book services even without data",
+      "benefit_verified_title": "Safe & Verified",
+      "benefit_verified_desc": "All providers are ID verified",
+      "benefit_earnings_title": "Earn More",
+      "benefit_earnings_desc": "Set your rates and grow your business",
+      "find_services": "Find Services",
+      "offer_services": "Offer Services",
+      "already_have_account": "Already have an account?",
+      "sign_in": "Sign in"
+    }
   },
   "home": {
     "welcome": "Indlela",
@@ -310,6 +326,23 @@
     "cancel": "Cancel Payment",
     "secure": "Payments are secure and encrypted",
     "powered_by": "Powered by Yoco"
+  },
+  "location": {
+    "use_current": "Use my current location",
+    "getting_location": "Getting your location...",
+    "manual_entry": "Manual Entry",
+    "search": "Search",
+    "township": "Township/Area",
+    "township_placeholder": "e.g., Soweto, Khayelitsha, Alexandra",
+    "city": "City",
+    "city_placeholder": "e.g., Johannesburg, Cape Town, Durban",
+    "search_placeholder": "Search for your location...",
+    "helper_text": "We'll use this to connect you with nearby customers and providers.",
+    "permission_denied": "Location permission denied. Please enable location services in your device settings.",
+    "position_unavailable": "Unable to determine your location. Please try again or enter manually.",
+    "timeout": "Location request timed out. Please try again or enter manually.",
+    "location_set": "Location set successfully",
+    "no_results": "No locations found. Try a different search term."
   },
   "footer": {
     "tagline": "Connecting communities with trusted service providers",

@@ -12,6 +12,7 @@ import { useAuthStore } from '~/stores/auth'
 
 definePageMeta({
   layout: false,
+  middleware: 'auth',
 })
 
 const { t } = useI18n()

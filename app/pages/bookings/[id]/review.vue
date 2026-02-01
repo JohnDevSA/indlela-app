@@ -17,6 +17,7 @@ import { mockBookings, mockDelay } from '~/utils/mock-data'
 
 definePageMeta({
   layout: 'default',
+  middleware: 'auth',
 })
 
 const { t } = useI18n()

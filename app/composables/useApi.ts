@@ -1,4 +1,5 @@
 import { createApiClient, getErrorMessage, isApiError } from '~/utils/api'
+import { useAuthStore } from '~/stores/auth'
 import type { ApiResponse } from '~/types'
 
 /**

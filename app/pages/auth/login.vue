@@ -9,6 +9,7 @@ import { useAuthStore, type MockUserType } from '~/stores/auth'
 
 definePageMeta({
   layout: 'auth',
+  middleware: 'guest',
 })
 
 const { t } = useI18n()

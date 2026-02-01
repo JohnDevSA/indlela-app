@@ -7,6 +7,7 @@ import { mockProviders, mockBookings, mockUser } from '~/utils/mock-data'
 
 definePageMeta({
   layout: 'admin',
+  middleware: 'admin',
 })
 
 // Mock admin stats

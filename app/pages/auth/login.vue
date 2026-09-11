@@ -573,7 +573,7 @@ const canSubmit = computed(() => !isLoading.value && phone.value.replace(/\D/g, 
   }
 
   .phone-input-wrapper {
-    background: var(--color-neutral-900);
+    background: var(--color-neutral-50);
     border-color: var(--color-neutral-600);
   }
 

@@ -6,6 +6,7 @@ import {
   IonIcon,
   IonInput,
   IonSpinner,
+  toastController,
 } from '@ionic/vue'
 import { checkmarkCircle, arrowForward, arrowBack, location, person } from 'ionicons/icons'
 import { useAuthStore } from '~/stores/auth'
@@ -18,6 +19,18 @@ definePageMeta({
 const { t } = useI18n()
 const router = useRouter()
 const authStore = useAuthStore()
+const { patch, getErrorMessage } = useApi()
+
+// Toast helper
+const showToast = async (message: string, color: 'success' | 'danger' = 'success') => {
+  const toast = await toastController.create({
+    message,
+    duration: 3000,
+    color,
+    position: 'top',
+  })
+  await toast.present()
+}
 
 // Onboarding steps
 const currentStep = ref(0)
@@ -66,23 +79,39 @@ const prevStep = () => {
 const completeOnboarding = async () => {
   isSubmitting.value = true
 
-  // Simulate API call
-  await new Promise(resolve => setTimeout(resolve, 1000))
+  try {
+    await patch('/auth/me', {
+      name: formData.value.name,
+      email: formData.value.email || undefined,
+      location: {
+        township: formData.value.township,
+        city: formData.value.city,
+      },
+    })
 
-  authStore.completeOnboarding({
-    name: formData.value.name,
-    email: formData.value.email || undefined,
-  })
+    authStore.completeOnboarding({
+      name: formData.value.name,
+      email: formData.value.email || undefined,
+    })
 
-  isSubmitting.value = false
-  router.push('/')
+    router.push('/')
+  } catch (error) {
+    const message = getErrorMessage(error)
+    await showToast(message || 'Failed to save your profile. Please try again.', 'danger')
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
-const skipOnboarding = () => {
-  authStore.completeOnboarding({
-    name: 'Customer',
-  })
-  router.push('/')
+const skipOnboarding = async () => {
+  try {
+    await patch('/auth/me', { name: 'Customer' })
+    authStore.completeOnboarding({ name: 'Customer' })
+    router.push('/')
+  } catch (error) {
+    const message = getErrorMessage(error)
+    await showToast(message || 'Failed to skip onboarding. Please try again.', 'danger')
+  }
 }
 </script>
 

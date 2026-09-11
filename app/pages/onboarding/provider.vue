@@ -185,6 +185,8 @@ const completeOnboarding = async () => {
   try {
     // Build the provider onboarding payload (snake_case for API)
     const payload = {
+      name: formData.value.name,
+      email: formData.value.email || undefined,
       id_number: formData.value.idNumber,
       bio: formData.value.bio || undefined,
       location: {
@@ -197,7 +199,7 @@ const completeOnboarding = async () => {
         return {
           service_id: serviceId,
           price: service?.basePrice || 100,
-          duration: 60, // Default 1 hour
+          duration_minutes: 60, // Default 1 hour
         }
       }),
       availability: formData.value.availability,

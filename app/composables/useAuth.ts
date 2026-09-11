@@ -294,9 +294,10 @@ export function useAuth() {
 
     try {
       const { get } = useApi()
-      const response = await get<{ data: User }>('/auth/me')
-      authStore.setUser(response.data)
-      return response.data
+      const response = await get<Record<string, unknown>>('/auth/me')
+      const user = transformApiUser(response.user as Record<string, unknown>)
+      authStore.setUser(user)
+      return user
     } catch (e) {
       error.value = 'Failed to fetch user profile'
       return null
@@ -323,8 +324,8 @@ export function useAuth() {
       }
 
       const { patch } = useApi()
-      const response = await patch<{ data: User }>('/auth/me', data)
-      authStore.setUser(response.data)
+      const response = await patch<Record<string, unknown>>('/auth/me', data)
+      authStore.setUser(transformApiUser(response.user as Record<string, unknown>))
       return true
     } catch (e) {
       error.value = 'Failed to update profile'
